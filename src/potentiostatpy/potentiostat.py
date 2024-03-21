@@ -9,6 +9,17 @@ class Potentiostat:
     def __init__(self, n_modules: int):
         self.n_modules = n_modules
     
+    def set_channel_voltage(self, channel_idx, voltage):
+        raise NotImplementedError()
+    
+    def set_channel_voltages(self, channel_indices, channel_voltages):
+        assert len(channel_indices) == len(channel_voltages)
+
+        for i in range(len(channel_indices)):
+            chan_idx = channel_indices[i]
+            chan_voltage = channel_voltages[i]
+            self.set_channel_voltage(chan_idx, chan_voltage)
+    
     def check_potentiostat(self):
         raise NotImplementedError()
 
