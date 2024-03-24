@@ -27,14 +27,7 @@ class Potentiostat:
         self.i2c_multiplexer = TCA9548MultiplexerInterface(self.bus, self.n_modules, TCA9548A_DEFAULT_ADDRESS, logging=True)
         self.rtc = DS3231RealTimeClockInterface(self.bus, DS3231_ADDRESS)
 
-        # @TODO implement some kind of calibration for the Vref and 1V65, which have trouble when it comes to the trimpots
-        raise NotImplementedError()
 
-        # self.check_potentiostat()
-
-        # self.reset_channel_switches()
-        # self.reset_channel_voltages()
-    
     """
     Sets the switches on the modules to "off", disconnecting the voltage outputs of the DACs and op-amps from the electrodes.
     """
@@ -53,15 +46,6 @@ class Potentiostat:
     @property
     def n_channels(self):
         return self.n_modules * 8
-    
-    # """
-    # reset_channel_switches
-
-    # Start by switching off all channel switches, isolating electrodes
-    # """
-    # def reset_channel_switches(self):
-    #     for chan_idx in range(self.n_channels):
-    #         self.set_chan_switch(chan_idx)
     
     """
     set_chan_switch
@@ -135,21 +119,21 @@ class Potentiostat:
     def turn_off_channels(self, channel_indices):
         raise NotImplementedError()
     
-    def initialize_potentiostat(self):
-        # Check DS3231 real-time clock
-        raise NotImplementedError() 
+    # def initialize_potentiostat(self):
+    #     # Check DS3231 real-time clock
+    #     raise NotImplementedError() 
 
-        # # Try using multiplexer
-        # for i in range(self.n_modules):
-        #     self.i2c_multiplexer.select_module(i)
+    #     # # Try using multiplexer
+    #     # for i in range(self.n_modules):
+    #     #     self.i2c_multiplexer.select_module(i)
 
-        # For each module, check that all chips seem to be working
-        for i in range(self.n_modules):
-            self.i2c_multiplexer.select_module(i)
+    #     # For each module, check that all chips seem to be working
+    #     for i in range(self.n_modules):
+    #         self.i2c_multiplexer.select_module(i)
 
-            # Check the ADS1015 ADCs
+    #         # Check the ADS1015 ADCs
 
-            # Check the MCP4728 DACs
+    #         # Check the MCP4728 DACs
 
         
-        #?? Check the shift register and switches?
+    #     #?? Check the shift register and switches?
