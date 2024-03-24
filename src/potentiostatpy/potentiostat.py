@@ -27,10 +27,28 @@ class Potentiostat:
         self.i2c_multiplexer = TCA9548MultiplexerInterface(self.bus, self.n_modules, TCA9548A_DEFAULT_ADDRESS, logging=True)
         self.rtc = DS3231RealTimeClockInterface(self.bus, DS3231_ADDRESS)
 
+        # @TODO implement some kind of calibration for the Vref and 1V65, which have trouble when it comes to the trimpots
+        raise NotImplementedError()
+
         # self.check_potentiostat()
 
         # self.reset_channel_switches()
         # self.reset_channel_voltages()
+    
+    """
+    Sets the switches on the modules to "off", disconnecting the voltage outputs of the DACs and op-amps from the electrodes.
+    """
+    def disconnect_all_electrodes(self):
+        for chan_idx in range(self.n_channels):
+            self.set_chan_switch(chan_idx, False)
+    
+    """
+    Sets the output voltages of the electrodes to zero. Will only have noticeable effect for the electrodes that are currently "on" and connected.
+    """
+    def zero_all_voltages(self):
+        for chan_idx in range(self.n_channels):
+            self.set_chan_voltage(chan_idx, 0.0)
+
     
     @property
     def n_channels(self):
@@ -66,11 +84,6 @@ class Potentiostat:
         # Message the shift register and set the channel on or off
         raise NotImplementedError()
 
-    # Sets all DAC outputs to zero volts
-    # """
-    # def _channel_voltages(self):
-    #     for chan_idx in range(self.n_channels):
-    #         self.set_chan_voltage(chan_idx, 0)
     
     """
     set_chan_voltage
