@@ -26,11 +26,12 @@ def home():
 
 
 
-class MyCustomNamespace(Namespace):
+class PotentiostatNamespace(Namespace):
     def __init__(self, *args):
         super().__init__(*args)
     
-
+    def set_potentiostat(potstat):
+        self.potentiostat = potstat
     
     def on_request_potentiostat_state(self, req_data):
         # print(req_data)
@@ -42,7 +43,14 @@ class MyCustomNamespace(Namespace):
         #     "request_id": request_id,
         #     "response": response,
         # }
-        socketio.emit("potentiostat_state", {"abc": "def"}, namespace=SOCKET_NAMESPACE_STR)
+        potentiostat_state = {
+            "n_modules": self.potentiostat.n_modules,
+            "n_channels": self.potentiostat.n_channels,
+            "channel_switch_states": self.potentiostat.get_channel_switch_states(),
+            "channel_output_voltages": self.potentiostat.get_channel_output_voltages(),
+            # "channel_currents"
+        }
+        socketio.emit("potentiostat_state", potentiostat_state, namespace=SOCKET_NAMESPACE_STR)
 
     
     # def on_model_request(self, data):
@@ -66,11 +74,14 @@ class MyCustomNamespace(Namespace):
     # def on_model_request(self, data):
     #     # self.server_interface.send_model_req(request.sid, data)
 
-socketio.on_namespace(MyCustomNamespace(SOCKET_NAMESPACE_STR))
+potstat_namespace = PotentiostatNamespace(SOCKET_NAMESPACE_STR)
+socketio.on_namespace(potstat_namespace)
 
 
 # @app.route('/static/')
 
 
 if __name__ == '__main__':
+    potentiostat = Potentiostat()
+    potstat_namespace.set_potentiostat(potentiostat)
     app.run(debug=True, host='0.0.0.0', port=5000)

@@ -65,6 +65,12 @@ class Potentiostat:
     def n_channels(self):
         return self.n_modules * 8
     
+    def get_channel_switch_states(self):
+        raise NotImplementedError()
+
+    def get_channel_output_voltages(self):
+        raise NotImplementedError()
+    
     """
     set_chan_switch
 
