@@ -1,4 +1,4 @@
-
+from ..logger import PrintLogger
 
 
 class MCP4728DACInterface:
@@ -10,12 +10,16 @@ class MCP4728DACInterface:
     the new board's dac without any warning.
     """
 
-    def __init__(self, bus, i2c_address):
+    def __init__(self, bus, i2c_address, logger=PrintLogger()):
         self.bus = bus
         self.address = i2c_address
+        self.l = logger
     
     def reset():
-        self.bus.write_byte_data(self.address, 0x00, 0x06)
+        data = 0x06
+        register =0x00
+        self.l.log("Resetting DAC: Writing {dat:#010b} to register {reg:#010b} at address {addr:#010b}".format(dat=data, reg=register, addr=self.address))
+        self.bus.write_byte_data(self.address, register, data)
     
     def set_voltage(channel, value):
         raise NotImplementedError()

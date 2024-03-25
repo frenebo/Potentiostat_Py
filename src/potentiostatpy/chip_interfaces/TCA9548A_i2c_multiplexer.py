@@ -1,4 +1,4 @@
-
+from ..logger import PrintLogger
 
 
 
@@ -7,12 +7,12 @@ class TCA9548MultiplexerInterface:
     This class manages the I2C multiplexer chip and performs tasks
     like changing the multiplexer's selected board.
     """
-    def __init__(self, bus, n_modules: int, i2c_address: int, logging=False):
+    def __init__(self, bus, n_modules: int, i2c_address: int, logger=PrintLogger()):
         self.bus = bus
         self.n_modules = n_modules
         self.i2c_address = i2c_address
         self.address = i2c_address
-        self.logging = logging
+        self.l = logger
     
 
     def select_module(self, module_idx):
@@ -32,5 +32,8 @@ class TCA9548MultiplexerInterface:
             0b01000000, # module 6
             0b10000000, # module 7
         ]
+
+        com_byte = command_bytes[module_idx]
+        self.l.log("Selecting module {module_idx} with TCA9548".format(module_idx=module_idx))
 
         bus.write_byte_data(multiplex_addr, 0x04, command_bytes[module_idx])

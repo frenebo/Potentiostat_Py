@@ -15,6 +15,7 @@ def main():
         potstat = Potentiostat()
 
         potstat.disconnect_all_electrodes()
+        potstat.zero_all_voltages()
         pass
     else:
         raise NotImplementedError()

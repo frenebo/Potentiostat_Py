@@ -1,8 +1,10 @@
+from ..logger import PrintLogger
 
 class ADS1015ADCInterface:
-    def __init__(self, bus, i2c_address: int):
+    def __init__(self, bus, i2c_address: int, logger=PrintLogger()):
         self.bus = bus
         self.address = i2c_address
+        self.l = logger
     
     def set_voltages(self, v0:float, v1:float, v2:float, v3:float):
         raise NotImplementedError()
