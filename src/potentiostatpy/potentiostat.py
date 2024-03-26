@@ -40,6 +40,9 @@ class Potentiostat:
         self.channel_voltages = [None] * self.n_channels
         self.connected_channels = [None] * self.n_channels
 
+        self.l.log("Setting up I2C bus with smbus.")
+        bus = smbus.SMBus(1)
+
         self.l.log("Initializing potentiostat. # of modules: {n_modules}, # of channels: {n_channels}".format(n_modules=self.n_modules, n_channels=self.n_channels))
         self.i2c_multiplexer = TCA9548MultiplexerInterface(self.bus, self.n_modules, TCA9548A_DEFAULT_ADDRESS, logger=self.l)
         self.rtc = DS3231RealTimeClockInterface(self.bus, DS3231_ADDRESS, logger=self.l)
