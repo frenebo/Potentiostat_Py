@@ -17,12 +17,6 @@ class PotentiostatView
 
         this.appDiv.appendChild(titleBar);
 
-        // titleBar.style.position=
-
-        // const menuBarDiv = document.createElement("div");
-        // menuBarDiv.style.position = "relative";
-        // div.appendChild(menuBarDiv);
-
         this.serverInterface.requestPotentiostatState();
     }
 
@@ -60,14 +54,10 @@ class ServerInterface
 }
 
 
-
-
 function setupApp(appDiv)
 {
     const serverInterface = new ServerInterface();
     const pot_view = new PotentiostatView(appDiv, serverInterface);
-    // console.log("asdfasdfsdf");
-    
 }
 
 export { setupApp };
