@@ -7,7 +7,7 @@ import os
 # print(os.path.join(os.path.dirname(sys.path[0]), 'potentiostatpy'))
 
 # sys.path.append(os.path.join(os.path.dirname(sys.path[0]), 'potentiostatpy'))
-from potentiostat import Potentiostat
+from potentiostatpy.potentiostat import Potentiostat
 
 app = Flask(__name__,
             # static_url_path='', 
