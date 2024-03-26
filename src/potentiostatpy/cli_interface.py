@@ -12,6 +12,7 @@ def main():
     print(args.action)
 
     if args.action == "test":
+        print("In cli interface: making potentiostat!+==============================================")
         potstat = Potentiostat()
 
         potstat.disconnect_all_electrodes()
