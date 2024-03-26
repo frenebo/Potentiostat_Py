@@ -58,7 +58,7 @@ class PotentiostatView
 
             // Voltage
             const voltage_td = tr.insertCell();
-            const voltage_state = potentiostatState["chnannel_output_voltages"][i];
+            const voltage_state = potentiostatState["channel_output_voltages"][i];
             let voltage_text = "";
             if (voltage_td === null) voltage_text = "?";
             else voltage_text = voltage_state.toString();
