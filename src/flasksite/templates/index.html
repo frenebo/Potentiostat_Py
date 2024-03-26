@@ -3,14 +3,14 @@
   <head>
     <title>title</title>
     <script type="module" src="/static/scripts/socket.io.js"></script>
-    <script type="module" src="/flasksite/static/scripts/main.js"></script>
+    <script type="module" src="/static/scripts/main.js"></script>
     <head>
-    <link rel="stylesheet" href="/flasksite/static/css/mainstyles.css">
+    <link rel="stylesheet" href="/static/css/mainstyles.css">
   </head>
   <body>
     <div id="appDiv"></div>
     <script type="module">
-        import { setupApp } from "/flasksite/static/scripts/main.js";
+        import { setupApp } from "/static/scripts/main.js";
 
         setupApp(document.getElementById("appDiv"));
     </script>
