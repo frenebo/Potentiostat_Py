@@ -4,7 +4,7 @@ class AbstractLogger:
     def log(self, text):
         raise NotImplementedError()
 
-class PrintLogger(Logger):
+class PrintLogger(AbstractLogger):
     def __init__(self):
         pass
     
