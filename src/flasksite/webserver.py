@@ -39,16 +39,11 @@ class PotentiostatNamespace(Namespace):
         print(req_data)
         print("on_request_potentiostat_state")
 
-        # obj = {
-        #     "request_id": request_id,
-        #     "response": response,
-        # }
         potentiostat_state = {
             "n_modules": self.potentiostat.n_modules,
             "n_channels": self.potentiostat.n_channels,
             "channel_switch_states": self.potentiostat.get_channel_switch_states(),
             "channel_output_voltages": self.potentiostat.get_channel_output_voltages(),
-            # "channel_currents"
         }
         socketio.emit("potentiostat_state", potentiostat_state, namespace=SOCKET_NAMESPACE_STR)
 
