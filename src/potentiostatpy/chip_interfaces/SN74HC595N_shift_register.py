@@ -29,6 +29,7 @@ class SN74HC595NShiftRegister:
             GPIO.setup(self.SRCLK, GPIO.OUT)
     
     def cleanup(self):
+        self.l.log("Cleaning up GPIO pins with GPIO.cleanup()")
         GPIO.cleanup()
             
     
