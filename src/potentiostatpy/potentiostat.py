@@ -83,6 +83,24 @@ class Potentiostat:
         return self.channel_voltages
         # raise NotImplementedError()
     
+    def get_channel_output_currents(self):
+        # return self.
+        chan_currents = [];
+        for i in range(self.n_channels):
+            current_i = self.read_channel_current(i)
+            chan_currents.append(i)
+
+        return chan_currents
+
+    def read_channel_current(self, channel_idx):
+        assert channel_idx >= 0 and channel_idx < self.n_channels
+
+        module_idx = channel_idx // 8
+        module_subchannel_idx = channel_idx % 8
+
+        self.switch_i2cmultiplexer(module_idx)
+        self.
+    
     """
     Sets all of the channel switches at the same time, to the new provided settings.
     This needs to be done all at once instead of manipulating channels individually, due to the way the switch shift
@@ -114,8 +132,6 @@ class Potentiostat:
         module_subchannel_idx = channel_idx % 8
 
         self.switch_i2cmultiplexer(module_idx)
-
-
         raise NotImplementedError()
 
         self._state_changed()
@@ -129,8 +145,11 @@ class Potentiostat:
     Raspberry Pi
     """
     def switch_i2cmultiplexer(self, module_idx: int):
-        self.l.log("Switching I2C multiplexer to board {module_idx}".format(module_idx=module_idx))
-        self.i2c_multiplexer.select_module(module_idx)
+        if self.i2c_multiplexer.get_current_selected_module() == module_idx:
+            return
+        else:
+            self.l.log("Switching I2C multiplexer to board {module_idx}".format(module_idx=module_idx))
+            self.i2c_multiplexer.select_module(module_idx)
 
     """
     set_voltages
@@ -162,6 +181,7 @@ class Potentiostat:
             "n_channels": self.n_channels,
             "channel_switch_states": self.get_channel_switch_states(),
             "channel_output_voltages": self.get_channel_output_voltages(),
+            "channel_output_current": self.get_channel_output_currents(),
         }
 
         return potentiostat_state

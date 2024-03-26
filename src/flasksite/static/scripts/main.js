@@ -39,8 +39,9 @@ class PotentiostatView
 
         // Header
         const headerTr = tbl.insertRow();
-        headerTr.insertCell().appendChild(document.createTextNode("Switch"));
+        headerTr.insertCell().appendChild(document.createTextNode("Switch state"));
         headerTr.insertCell().appendChild(document.createTextNode("Voltage"));
+        headerTr.insertCell().appendChild(document.createTextNode("Current"));
         for (let i = 0; i < n_channels; i++) {
             const tr = tbl.insertRow();
 
@@ -65,21 +66,19 @@ class PotentiostatView
 
             voltage_td.appendChild(document.createTextNode(voltage_text));
             voltage_td.style.border = '1px solid black';
-            // if (i === 2 && j === 1) {
-            //   break;
-            // } else {
-            //   const td = tr.insertCell();
-            //   td.appendChild(document.createTextNode(`Cell I${i}/J${j}`));
-            //   td.style.border = '1px solid black';
-            //   if (i === 1 && j === 1) {
-            //     td.setAttribute('rowSpan', '2');
-            //   }
-            // }
+
+            // Current
+            const current_td = tr.insertCell();
+            const current_state = potentiostatState["channel_output_current"][i];
+            let current_text = "";
+            if (current_state === null) current_text = "?";
+            else current_text = current_state.toString();
+
+            current_td.appendChild(document.createTextNode(current_text));
+            current_td.style.border = '1px solid black';
         }
         
         return tbl;
-        // body.appendChild(tbl);
-
     }
 }
 
