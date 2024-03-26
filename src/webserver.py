@@ -32,20 +32,19 @@ class PotentiostatNamespace(Namespace):
     
     def set_potentiostat(self, potstat):
         self.potentiostat = potstat
+        self.potentiostat.on_state_changed(self.send_out_potentiostat_state)
     
     def on_request_potentiostat_state(self, req_data):
         # print(req_data)
         # parsed = json.loads(req_data)
         print(req_data)
         print("on_request_potentiostat_state")
+        self.send_out_potentiostat_state(self.potentiostat.get_state())
+    
+    def send_out_potentiostat_state(self, new_state):
+        socketio.emit("potentiostat_state", self.potentiostat.get_state(), namespace=SOCKET_NAMESPACE_STR)
 
-        potentiostat_state = {
-            "n_modules": self.potentiostat.n_modules,
-            "n_channels": self.potentiostat.n_channels,
-            "channel_switch_states": self.potentiostat.get_channel_switch_states(),
-            "channel_output_voltages": self.potentiostat.get_channel_output_voltages(),
-        }
-        socketio.emit("potentiostat_state", potentiostat_state, namespace=SOCKET_NAMESPACE_STR)
+        # socketio.emit("potentiostat_state", self.potentiostat.get_state(), namespace=SOCKET_NAMESPACE_STR)
 
     
     # def on_model_request(self, data):

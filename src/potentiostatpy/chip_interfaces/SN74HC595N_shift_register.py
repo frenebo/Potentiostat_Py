@@ -35,6 +35,9 @@ class SN74HC595NShiftRegister:
     
     def set_switches(self, channel_states):
         assert len(channel_states) == self.num_channels # Need to fill up the shift registers completely
+        for state in channel_states:
+            assert isinstance(state, bool)
+        
         # Pin states at start
         self.l.log("Setting switches to {}".format(channel_states))
         self.l.log("    Setting SDI, RCKL, SRCLK outputs to low")

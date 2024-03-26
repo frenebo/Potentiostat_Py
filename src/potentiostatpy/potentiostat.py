@@ -36,6 +36,7 @@ class Potentiostat:
     def __init__(self, n_modules: int, logger=PrintLogger()):
         self.n_modules = n_modules
         self.l = logger
+        self.state_changed_listeners = []
 
         self.channel_voltages = [None] * self.n_channels
         self.connected_channels = [None] * self.n_channels
@@ -54,9 +55,7 @@ class Potentiostat:
     """
     def disconnect_all_electrodes(self):
         self.l.log("Disconnecting all electrodes")
-        raise NotImplementedError()
-        # for chan_idx in range(self.n_channels):
-        #     self.set_chan_switch(chan_idx, False)
+        self.set_all_channel_switches()
     
     def cleanup(self):
         # Let go of the GPIO pins used by the switch_shift_register
@@ -85,26 +84,20 @@ class Potentiostat:
         # raise NotImplementedError()
     
     """
-    set_chan_switch
-
-    Switches the selected channel either on or off
+    Sets all of the channel switches at the same time, to the new provided settings.
+    This needs to be done all at once instead of manipulating channels individually, due to the way the switch shift
+    register works.
     """
-    def set_chan_switch(self, channel_idx: int, state: bool):
-        # self.l.log9
-        if channel_idx < 0:
-            raise Exception("Invalid negative channel index {}".format(channel_idx))
-        if channel_idx >= self.n_channels:
-            raise Exception("Invalid channel idx {}. Only {} modules connected, "
-                "with 8 channels each. Channel idx must be 0-{}".format(
-                channel_idx,
-                self.n_modules,
-                self.n_channels,
-            ))
-        if state != True and state != False:
-            raise Exception("invalid channel switch state {}, must be boolean True or False".format(state))
+    def set_all_channel_switches(self, new_settings):
+        if len(new_settings) != self.n_channels:
+            raise Exception("set_all_channel_switches should be called with the new values for all of the channel switches")
+        for setting in new_settings:
+            if not isinstance(setting, bool):
+                raise Exception("Invalid channel switch setting {}, should be True or False".format(setting))
         
-        # Message the shift register and set the channel on or off
-        raise NotImplementedError()
+        self.switch_shift_register.set_switches(new_settings)
+
+        self._state_changed()
 
     
     """
@@ -124,6 +117,8 @@ class Potentiostat:
 
 
         raise NotImplementedError()
+
+        self._state_changed()
 
 
     """
@@ -148,8 +143,35 @@ class Potentiostat:
         for i in range(len(channel_indices)):
             chan_idx = channel_indices[i]
             chan_voltage = channel_voltages[i]
+            assert chan_idx >= 0 and chan_idx < self.n_channels
+
             self.set_channel_voltage(chan_idx, chan_voltage)
+            self.channel_voltages[chan_idx] = chan_voltage
+        
+        self._state_changed()
     
     def read_currents(self, channel_indices):
         raise NotImplementedError()
+    
+    def on_state_changed(self, listener):
+        self.state_changed_listeners.append(listener)
+    
+    def get_state(self):
+        potentiostat_state = {
+            "n_modules": self.n_modules,
+            "n_channels": self.n_channels,
+            "channel_switch_states": self.get_channel_switch_states(),
+            "channel_output_voltages": self.get_channel_output_voltages(),
+        }
+
+        return potentiostat_state
+
+    """
+    This should be called when the Potentiostat class changes itself. Calling this notifies all listeners
+    that data has changed
+    """
+    def _state_changed(self):
+        for l in self.state_changed_listeners:
+            l(self.get_state())
+
     
