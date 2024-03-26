@@ -36,7 +36,11 @@ class PotentiostatView
         const tbl = document.createElement('table');
         tbl.style.width = '100px';
         tbl.style.border = '1px solid black';
-      
+
+        // Header
+        const headerTr = tbl.insertRow();
+        headerTr.insertCell().appendChild(document.createTextNode("Switch"));
+        headerTr.insertCell().appendChild(document.createTextNode("Voltage"));
         for (let i = 0; i < n_channels; i++) {
           const tr = tbl.insertRow();
         //   for (let j = 0; j < 2; j++) {
