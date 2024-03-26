@@ -4,15 +4,15 @@ from flask_socketio import SocketIO, send, Namespace
 import sys
 import os
 
-print(os.path.join(os.path.dirname(sys.path[0]), 'potentiostatpy'))
+# print(os.path.join(os.path.dirname(sys.path[0]), 'potentiostatpy'))
 
-sys.path.append(os.path.join(os.path.dirname(sys.path[0]), 'potentiostatpy'))
+# sys.path.append(os.path.join(os.path.dirname(sys.path[0]), 'potentiostatpy'))
 from potentiostat import Potentiostat
 
 app = Flask(__name__,
             # static_url_path='', 
-            static_folder=  'static',
-            template_folder='templates')
+            static_folder=  'flasksite/static',
+            template_folder='flasksite/templates')
 
             
 
