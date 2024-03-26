@@ -11,7 +11,7 @@ class PotentiostatView
         this.appDiv = appDiv;
         this.serverInterface = serverInterface;
 
-        this.serverInterface.onServerStateChange(this.updatePotentiostatInfo);
+        this.serverInterface.onServerStateChange((newState) => { this.updatePotentiostatInfo(newState); });
 
         const titleBar = document.createElement('div');
 
