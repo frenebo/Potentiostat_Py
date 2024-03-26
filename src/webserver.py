@@ -30,7 +30,7 @@ class PotentiostatNamespace(Namespace):
     def __init__(self, *args):
         super().__init__(*args)
     
-    def set_potentiostat(potstat):
+    def set_potentiostat(self, potstat):
         self.potentiostat = potstat
     
     def on_request_potentiostat_state(self, req_data):
