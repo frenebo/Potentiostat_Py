@@ -1,7 +1,11 @@
 import smbus
-from. chip_interfaces.DS3231_rtc import DS3231RealTimeClockInterface
-from .chip_interfaces.MCP4728_dac import MCP4728DACInterface
-from .chip_interfaces.ADS1015_adc import ADS1015ADCInterface
+from. chip_interfaces import (
+    DS3231RealTimeClockInterface,
+    MCP4728DACInterface,
+    ADS1015ADCInterface,
+    TCA9548MultiplexerInterface,
+    SN74HC595NShiftRegister
+)
 from .logger import PrintLogger
 
 # I2C multiplexer on main board
@@ -39,7 +43,7 @@ class Potentiostat:
         self.l.log("Initializing potentiostat. # of modules: {n_modules}, # of channels: {n_channels}".format(n_modules=self.n_modules, n_channels=self.n_channels))
         self.i2c_multiplexer = TCA9548MultiplexerInterface(self.bus, self.n_modules, TCA9548A_DEFAULT_ADDRESS, logger=self.l)
         self.rtc = DS3231RealTimeClockInterface(self.bus, DS3231_ADDRESS, logger=self.l)
-        self.switch_shift_register = SN75HC595NShiftRegister(SDI_pin, RCLK_pin, SRCLK_pin, self.n_channels, logger=self.l)
+        self.switch_shift_register = SN74HC595NShiftRegister(SDI_pin, RCLK_pin, SRCLK_pin, self.n_channels, logger=self.l)
 
 
     """

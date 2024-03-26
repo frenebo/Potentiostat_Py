@@ -5,7 +5,7 @@ from ..logger import PrintLogger
 
 
 
-class SN75HC595NShiftRegister:
+class SN74HC595NShiftRegister:
     """
     Simple class to switch the potentiostat's outputs on and off by controlling the switches with the linked shift registers.
     The different boards' shift registers are daisy-chained to each other, so we only need to send data to the first board, and the data
