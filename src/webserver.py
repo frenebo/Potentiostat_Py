@@ -77,6 +77,13 @@ socketio.on_namespace(potstat_namespace)
 
 
 if __name__ == '__main__':
-    potentiostat = Potentiostat(n_modules=1)
-    potstat_namespace.set_potentiostat(potentiostat)
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    try:
+        potentiostat = Potentiostat(n_modules=1)
+        potstat_namespace.set_potentiostat(potentiostat)
+        app.run(debug=True, host='0.0.0.0', port=5000)
+    except:
+        #Try to cleanup potentiostat resources, then raise the exception.
+        potentiostat.cleanup()
+        raise
+        
+    potentiostat.cleanup()

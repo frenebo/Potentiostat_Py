@@ -58,6 +58,10 @@ class Potentiostat:
         # for chan_idx in range(self.n_channels):
         #     self.set_chan_switch(chan_idx, False)
     
+    def cleanup(self):
+        # Let go of the GPIO pins used by the switch_shift_register
+        self.switch_shift_register.cleanup()
+    
     """
     Sets the output voltages of the electrodes to zero. Will only have noticeable effect for the electrodes that are currently "on" and connected.
     """

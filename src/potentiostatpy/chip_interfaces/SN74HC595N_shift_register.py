@@ -27,6 +27,9 @@ class SN74HC595NShiftRegister:
             GPIO.setup(self.SDI, GPIO.OUT)
             GPIO.setup(self.RCLK, GPIO.OUT)
             GPIO.setup(self.SRCLK, GPIO.OUT)
+    
+    def cleanup(self):
+        GPIO.cleanup()
             
     
     def set_switches(self, channel_states):
