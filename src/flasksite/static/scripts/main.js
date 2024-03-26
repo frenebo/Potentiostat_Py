@@ -42,8 +42,9 @@ class PotentiostatView
         headerTr.insertCell().appendChild(document.createTextNode("Switch"));
         headerTr.insertCell().appendChild(document.createTextNode("Voltage"));
         for (let i = 0; i < n_channels; i++) {
-          const tr = tbl.insertRow();
-        //   for (let j = 0; j < 2; j++) {
+            const tr = tbl.insertRow();
+
+            // On/off state
             const switch_td = tr.insertCell();
             const switch_state = potentiostatState["channel_switch_states"][i];
             let on_off_text = "";
@@ -52,9 +53,18 @@ class PotentiostatView
             else if (switch_state === false) on_off_text = "Off";
             else throw Error("Invalid switch state " + switch_state);
 
-            // if ()
             switch_td.appendChild(document.createTextNode(on_off_text));
-            switch_td.style.border = '1px solid black'
+            switch_td.style.border = '1px solid black';
+
+            // Voltage
+            const voltage_td = tr.insertCell();
+            const voltage_state = potentiostatState["chnannel_output_voltages"][i];
+            let voltage_text = "";
+            if (voltage_td === null) voltage_text = "?";
+            else voltage_text = voltage_state.toString();
+
+            voltage_td.appendChild(document.createTextNode(voltage_text));
+            voltage_td.style.border = '1px solid black';
             // if (i === 2 && j === 1) {
             //   break;
             // } else {
