@@ -1,0 +1,30 @@
+.input_table_panel {
+    max-height: 150px;
+    overflow: auto;
+}
+
+.output_table_panel {
+    max-height: 150px;
+    overflow: auto;
+}
+
+.big_title {
+    font-size: large;
+    color: rgb(224, 164, 43);
+}
+
+.big_subtitle_text {
+    font-size: 10px;
+    color: black;
+}
+
+
+.panels_row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+.panel_block {
+    width: 30%;
+}

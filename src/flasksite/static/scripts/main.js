@@ -2,6 +2,84 @@
 
 
 const SERVER_SOCKET_PATH = `/socket_path`;
+const VERSION = "0.1";
+
+class PotentiostatSettingPanel
+{
+    constructor()
+    {
+        this.mainDiv = document.createElement("div");
+
+        this.userChangeListeners = [];
+
+        // @TODO implement
+    }
+
+    getHtmlElement()
+    {
+        return this.mainDiv;
+    }
+
+    onUserChange(listener)
+    {
+        this.userChangeListeners.push(listener);
+    }
+}
+
+class ChannelInputsPanel
+{
+    constructor()
+    {
+        this.mainDiv = document.createElement("div");
+
+        const titleBar = document.createElement("div");
+        titleBar.innerHTML = "Inputs (Volts)";
+        this.mainDiv.appendChild(titleBar);
+
+        this.lastUpdatedDiv = document.createElement("div");
+        this.mainDiv.appendChild(this.lastUpdatedDiv);
+
+        this.inputsTablePanel = document.createElement("div");
+        this.inputsTablePanel.classList.add('input_table_panel');
+        this.mainDiv.appendChild(this.inputsTablePanel);
+        
+        this.userChangeListeners = [];
+    }
+
+    getHtmlElement()
+    {
+        return this.mainDiv;
+    }
+
+    onUserChange(listener)
+    {
+        this.userChangeListeners.push(listener);
+    }
+}
+
+class ChannelOutputsPanel
+{
+    constructor()
+    {
+        this.mainDiv = document.createElement("div");
+
+        const titleBar = document.createElement("div");
+        titleBar.innerHTML = "Outputs (current)";
+        this.mainDiv.appendChild(titleBar);
+
+        this.lastUpdatedDiv = document.createElement("div");
+        this.mainDiv.appendChild(this.lastUpdatedDiv);
+
+        this.inputsTablePanel = document.createElement("div");
+        this.inputsTablePanel.classList.add('output_table_panel');
+        this.mainDiv.appendChild(this.inputsTablePanel);
+    }
+
+    getHtmlElement()
+    {
+        return this.mainDiv;
+    }
+}
 
 
 class PotentiostatView
@@ -14,10 +92,71 @@ class PotentiostatView
         this.serverInterface.onServerStateChange((newState) => { this.updatePotentiostatInfo(newState); });
 
         const titleBar = document.createElement('div');
-
+        titleBar.classList.add('big_title');
+        titleBar.innerHTML="PotentiostatPy v" + VERSION.toString();
         this.appDiv.appendChild(titleBar);
 
+        const subtitleBar = document.createElement('div');
+        subtitleBar.classList.add('big_subtitle_text');
+        subtitleBar.innerHTML = "Paul Kreymborg, Atkinson Lab, Princeton University, 2024. https://github.com/frenebo/Potentiostat_Py";
+        this.appDiv.appendChild(subtitleBar);
+
+        const resetButton = document.createElement("input");
+        resetButton.type = "button";
+        resetButton.value = "request new state";
+        resetButton.onclick = () => { this.serverInterface.requestPotentiostatReset(); };
+
+
+        // Set up the control, inputs, outputs channels
+        this.potstat_setting_panel = new PotentiostatSettingPanel();
+        this.channel_inputs_panel = new ChannelInputsPanel();
+        this.channel_outputs_panel = new ChannelOutputsPanel();
+
+        this.potstat_setting_panel.onUserChange((data) => { this.userChangedSettingsPanel(data); });
+        this.channel_inputs_panel.onUserChange((data) => { this.userChangedChannelInputsPanel(data); });
+        
+
+
+
+        // Three panels - control panel, input panel, output panel
+
+        const panelDiv = document.createElement("div");
+        this.appDiv.appendChild(panelDiv);
+        panelDiv.classList.add("panels_row");
+
+
+        // Settings panel
+        const settingsPanelDiv = document.createElement("div");
+        panelDiv.appendChild(settingsPanelDiv);
+        settingsPanelDiv.classList.add("panel_block");
+        settingsPanelDiv.appendChild(this.potstat_setting_panel.getHtmlElement());
+        
+
+        // Inputs panel
+        const inputPanelDiv = document.createElement("div");
+        panelDiv.appendChild(inputPanelDiv);
+        inputPanelDiv.classList.add("panel_block");        
+        inputPanelDiv.appendChild(this.channel_inputs_panel.getHtmlElement());
+
+        // Outputs panel
+        const outputPanelDiv = document.createElement("div");
+        panelDiv.appendChild(outputPanelDiv);
+        outputPanelDiv.classList.add("panel_block");
+        outputPanelDiv.appendChild(this.channel_outputs_panel.getHtmlElement());
+
         this.serverInterface.requestPotentiostatState();
+    }
+
+    userChangedChannelInputsPanel(data)
+    {
+        // @TODO
+        console.log("Unimplemented userChangedChannelInputsPanel");
+    }
+
+    userChangedSettingsPanel(data)
+    {
+        // @TODO
+        console.log("Unimplemented userChangedSettingsPanel");
     }
 
     updatePotentiostatInfo(newPotentiostatState)
@@ -26,7 +165,6 @@ class PotentiostatView
         console.log(newPotentiostatState);
         this.appDiv.innerHTML = "";
         this.appDiv.appendChild(this.createPotStatSummaryDiv(newPotentiostatState));
-        // this.appDiv.appendChild(this.createPotStatSummaryDiv(newPotentiostatState))
     }
 
     createPotStatSummaryDiv(potentiostatState)
@@ -95,6 +233,11 @@ class ServerInterface
                 listener(message);
             }
         });
+    }
+
+    requestPotentiostatReset()
+    {
+        this.socketio.emit("request_potentiostat_reset", "")
     }
 
     requestPotentiostatState()

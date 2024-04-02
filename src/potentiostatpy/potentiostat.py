@@ -53,9 +53,12 @@ class Potentiostat:
     """
     Sets the switches on the modules to "off", disconnecting the voltage outputs of the DACs and op-amps from the electrodes.
     """
-    def disconnect_all_electrodes(self):
+    def disconnect_all_electrodes(self, suppress_state_change=False):
         self.l.log("Disconnecting all electrodes")
-        self.set_all_channel_switches()
+        self.set_all_channel_switches([False] * self.n_channels)
+
+        if not suppress_state_change:
+            self._state_changed()
     
     def cleanup(self):
         # Let go of the GPIO pins used by the switch_shift_register
@@ -64,11 +67,15 @@ class Potentiostat:
     """
     Sets the output voltages of the electrodes to zero. Will only have noticeable effect for the electrodes that are currently "on" and connected.
     """
-    def zero_all_voltages(self):
+    def zero_all_voltages(self, suppress_state_change=False):
         self.l.log("Setting all channel voltages to zero")
         indices_to_set = list(range(self.n_channels))
-        voltages_to_set = [0] * self.n_channels
-        self.set_voltages(indices_to_set, voltages_to_set)
+        voltages_to_set = [0.0] * self.n_channels
+        self.set_all_voltages(voltages_to_set, suppress_state_change=True)
+
+        
+        if not suppress_state_change:
+            self._state_changed()
 
     
     @property
@@ -77,11 +84,9 @@ class Potentiostat:
     
     def get_channel_switch_states(self):
         return self.connected_channels
-        # raise NotImplementedError()
 
     def get_channel_output_voltages(self):
         return self.channel_voltages
-        # raise NotImplementedError()
     
     def get_channel_output_currents(self):
         # return self.
@@ -99,7 +104,7 @@ class Potentiostat:
         module_subchannel_idx = channel_idx % 8
 
         self.switch_i2cmultiplexer(module_idx)
-        self.
+        raise NotImplementedError()
     
     """
     Sets all of the channel switches at the same time, to the new provided settings.
@@ -119,11 +124,11 @@ class Potentiostat:
 
     
     """
-    set_chan_voltage
+    set_channel_voltage
 
     Sets the selected channel to the selected voltage
     """
-    def set_chan_voltage(self, channel_idx: int, voltage: float):
+    def set_channel_voltage(self, channel_idx: int, voltage: float):
         self.l.log("Setting channel {channel_idx} voltage to {v}".format(channel_idx=channel_idx, v=voltage))
         if channel_idx < 0 or channel_idx >= self.n_channels:
             raise Exception("Invalid channel idx {}. Must be 0 to {}".format(channel, self.n_channels - 1))
@@ -152,26 +157,31 @@ class Potentiostat:
             self.i2c_multiplexer.select_module(module_idx)
 
     """
-    set_voltages
+    set_all_voltages
 
-    Sets the voltages for the selected channels
+    Sets the all the voltages to the given list of voltages
     """
-    def set_voltages(self, channel_indices, channel_voltages):
-        assert len(channel_indices) == len(channel_voltages)
+    def set_all_voltages(self, channel_voltages, suppress_state_change=False):
+        assert len(channel_voltages) == self.n_channels
+        # assert len(channel_indices) == len(channel_voltages)
 
-        for i in range(len(channel_indices)):
-            chan_idx = channel_indices[i]
+        for chan_i in range(self.n_channels):
             chan_voltage = channel_voltages[i]
-            assert chan_idx >= 0 and chan_idx < self.n_channels
 
-            self.set_channel_voltage(chan_idx, chan_voltage)
-            self.channel_voltages[chan_idx] = chan_voltage
+            self.set_channel_voltage(chan_i, chan_voltage, suppress_state_change=True)
+            self.channel_voltages[chan_i] = chan_voltage
         
-        self._state_changed()
+        if not suppress_state_change:
+            self._state_changed()
     
-    def read_currents(self, channel_indices):
-        raise NotImplementedError()
-    
+    def reset_board():
+        self.disconnect_all_electrodes(suppress_state_change=True)
+        self.zero_all_voltages(suppress_state_change=True)
+
+        #@TODO reset the settings of all the ADCs too
+        # self.reset_all_
+
+
     def on_state_changed(self, listener):
         self.state_changed_listeners.append(listener)
     

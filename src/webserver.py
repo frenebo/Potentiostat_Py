@@ -41,6 +41,9 @@ class PotentiostatNamespace(Namespace):
         print("on_request_potentiostat_state")
         self.send_out_potentiostat_state(self.potentiostat.get_state())
     
+    def on_request_potentiostat_reset(self, req_data):
+        self.potentiostat.reset_board()
+    
     def send_out_potentiostat_state(self, new_state):
         socketio.emit("potentiostat_state", self.potentiostat.get_state(), namespace=SOCKET_NAMESPACE_STR)
 
