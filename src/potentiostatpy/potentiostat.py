@@ -185,7 +185,7 @@ class Potentiostat:
         dac_idx = channel_idx // CHANNELS_PER_ADC
         dac_subchannel_idx = channel_idx % CHANNELS_PER_DAC
 
-        self.dac_interfaces[dac_idx].set_voltage(dac_idx, voltage)
+        self.dac_interfaces[dac_idx].set_voltage(dac_subchannel_idx, voltage)
         self._state_changed()
 
 
