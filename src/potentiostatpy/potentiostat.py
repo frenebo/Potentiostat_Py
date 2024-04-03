@@ -9,7 +9,7 @@ from. chip_interfaces import (
 from .logger import PrintLogger
 
 # I2C multiplexer on main board
-TCA9548A_DEFAULT_ADDRESS = 0x77
+TCA9548A_DEFAULT_ADDRESS = 0x70
 
 
 # Each module in the stack contains ADC and DAC to control and read 8 channels
