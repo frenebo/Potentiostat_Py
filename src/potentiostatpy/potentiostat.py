@@ -82,6 +82,8 @@ class Potentiostat:
 
             self.dac_interfaces.append(dac0_interface)
             self.dac_interfaces.append(dac1_interface)
+        
+        self.set_all_channel_switches([True] * self.n_channels)
 
 
 
@@ -90,7 +92,7 @@ class Potentiostat:
     """
     def disconnect_all_electrodes(self, suppress_state_change=False):
         self.l.log("Disconnecting all electrodes")
-        self.set_all_channel_switches([False] * self.n_channels)
+        self.set_all_channel_switches([False] * self.n_channels, suppress_state_change=True)
 
         if not suppress_state_change:
             self._state_changed()
@@ -172,7 +174,7 @@ class Potentiostat:
     This needs to be done all at once instead of manipulating channels individually, due to the way the switch shift
     register works.
     """
-    def set_all_channel_switches(self, new_settings):
+    def set_all_channel_switches(self, new_settings, suppress_state_change=False):
         if len(new_settings) != self.n_channels:
             raise Exception("set_all_channel_switches should be called with the new values for all of the channel switches")
         for setting in new_settings:
@@ -182,7 +184,9 @@ class Potentiostat:
         self.switch_shift_register.set_switches(new_settings)
 
         self.connected_channels = list(new_settings) # Update connected_channels to reflect new settings
-        self._state_changed()
+        
+        if not suppress_state_change:
+            self._state_changed()
 
     
     """
