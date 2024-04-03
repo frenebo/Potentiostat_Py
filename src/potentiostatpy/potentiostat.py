@@ -195,7 +195,7 @@ class Potentiostat:
 
     Sets the selected channel to the selected voltage
     """
-    def set_channel_voltage(self, channel_idx: int, voltage: float):
+    def set_channel_voltage(self, channel_idx: int, voltage: float, suppress_state_change=False):
         self.l.log("Setting channel {channel_idx} voltage to {v}".format(channel_idx=channel_idx, v=voltage))
         if channel_idx < 0 or channel_idx >= self.n_channels:
             raise Exception("Invalid channel idx {}. Must be 0 to {}".format(channel, self.n_channels - 1))
@@ -204,7 +204,8 @@ class Potentiostat:
         dac_subchannel_idx = channel_idx % CHANNELS_PER_DAC
 
         self.dac_interfaces[dac_idx].set_voltage(dac_subchannel_idx, voltage)
-        self._state_changed()
+        if not suppress_state_change:
+            self._state_changed()
 
 
     # """
