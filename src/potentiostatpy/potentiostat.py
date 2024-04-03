@@ -136,7 +136,7 @@ class Potentiostat:
         chan_currents = [];
         for i in range(self.n_channels):
             current_i = self.read_channel_current(i)
-            chan_currents.append(i)
+            chan_currents.append(current_i)
 
         return chan_currents
 
