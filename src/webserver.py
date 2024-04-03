@@ -79,6 +79,7 @@ socketio.on_namespace(potstat_namespace)
 
 
 if __name__ == '__main__':
+    potentiostat = None
     try:
         print("~~~~~~~~~~~~Creating Potentiostat!")
         potentiostat = Potentiostat(n_modules=1)

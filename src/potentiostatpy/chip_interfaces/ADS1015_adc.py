@@ -78,7 +78,6 @@ class ADS1015ADCInterface:
         self._i2cbus = bus
         self._address = i2c_address
         self._module_idx = module_idx
-        self._module_i2c_multiplexer
         self._l = logger
         self._conversionDelay = 2
         self._maxPorts = 4
