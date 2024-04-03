@@ -84,6 +84,7 @@ class Potentiostat:
             self.dac_interfaces.append(dac1_interface)
         
         self.set_all_channel_switches([True] * self.n_channels)
+        self.zero_all_voltages()
 
 
 
