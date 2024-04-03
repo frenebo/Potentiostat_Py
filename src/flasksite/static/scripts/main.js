@@ -177,11 +177,15 @@ class PotentiostatView
 
         // Header
         const headerTr = tbl.insertRow();
+        headerTr.insertCell().appendChild(document.createElement("Channel"));
         headerTr.insertCell().appendChild(document.createTextNode("Switch state"));
         headerTr.insertCell().appendChild(document.createTextNode("Voltage"));
         headerTr.insertCell().appendChild(document.createTextNode("Current"));
         for (let i = 0; i < n_channels; i++) {
             const tr = tbl.insertRow();
+
+            // Name
+            tr.insertCell().appendChild(document.createTextNode(i.toString()));
 
             // On/off state
             const switch_td = tr.insertCell();
