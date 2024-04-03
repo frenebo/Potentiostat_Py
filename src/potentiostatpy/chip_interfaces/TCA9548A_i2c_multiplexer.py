@@ -43,6 +43,6 @@ class TCA9548MultiplexerInterface:
 
         com_byte = command_bytes[module_idx]
         self.l.log("Selecting module {module_idx} with TCA9548".format(module_idx=module_idx))
-        self.l.log("Sending data {} to register {} at address {}".format(command_bytes[module_idx], 0x04, self.i2c_address))
+        self.l.log("Sending data 0x{:02x} to register 0x{:02x} at address 0x{:02x}".format(command_bytes[module_idx], 0x04, self.i2c_address))
         self.bus.write_byte_data(self.i2c_address, 0x04, command_bytes[module_idx])
         self._current_module_selected = module_idx
