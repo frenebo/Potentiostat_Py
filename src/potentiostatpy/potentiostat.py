@@ -71,6 +71,9 @@ class Potentiostat:
             adc0_interface = ADS1015ADCInterface(self.bus, ADS_0_STACK_ADDR, module_idx, self.i2c_multiplexer, logger=self.l)
             adc1_interface = ADS1015ADCInterface(self.bus, ADS_1_STACK_ADDR, module_idx, self.i2c_multiplexer, logger=self.l)
 
+            
+            # ADS.setGain(ADS.PGA_4_096V)
+
             self.adc_interfaces.append(adc0_interface)
             self.adc_interfaces.append(adc1_interface)
 
@@ -144,7 +147,15 @@ class Potentiostat:
         adc_idx = channel_idx // CHANNELS_PER_ADC
         adc_subchannel_idx = adc_idx % CHANNELS_PER_ADC
 
-        raw_ads_voltage = self.adc_interfaces[adc_idx].get_voltage(adc_subchannel_idx)
+        adc_interface = self.adc_interfaces[adc_idx]
+
+        # @TODO move this into a separate getter field
+        adc_interface.setGain(adc_interface.PGA_4_096V)
+
+        # raw_ads_voltage = adc_interface.get_voltage(adc_subchannel_idx)
+        raw_ads_val = adc_interface.readADC(adc_subchannel_idx)
+        f = adc_interface.toVoltage()
+        raw_ads_voltage = raw_ads_val * f
 
         # @TODO convert to voltage thru gain calculations
         print("voltage read: {}".format(raw_ads_voltage))
