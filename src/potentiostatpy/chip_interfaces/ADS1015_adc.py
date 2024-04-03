@@ -9,7 +9,7 @@ class ADS1015ADCInterface:
         self.l = logger
 
     
-    def get_voltages(self, adc_subchannel_idx):
+    def get_voltage(self, adc_subchannel_idx):
         self.module_multiplexer.select_module(self.module_idx)
 
         print("Here this should look at voltage from subchannel idx {}".format(adc_subchannel_idx))
