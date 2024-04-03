@@ -144,6 +144,9 @@ class PotentiostatView
         outputPanelDiv.classList.add("panel_block");
         outputPanelDiv.appendChild(this.channel_outputs_panel.getHtmlElement());
 
+        this.basicPanel = document.createElement("div");
+        this.appDiv.appendChild(this.basicPanel);
+
         this.serverInterface.requestPotentiostatState();
     }
 
@@ -163,8 +166,8 @@ class PotentiostatView
     {
         console.log("Received new state from server:");
         console.log(newPotentiostatState);
-        this.appDiv.innerHTML = "";
-        this.appDiv.appendChild(this.createPotStatSummaryDiv(newPotentiostatState));
+        this.basicPanel.innerHTML = "";
+        this.basicPanel.appendChild(this.createPotStatSummaryDiv(newPotentiostatState));
     }
 
     createPotStatSummaryDiv(potentiostatState)
