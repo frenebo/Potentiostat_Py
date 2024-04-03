@@ -42,5 +42,5 @@ class TCA9548MultiplexerInterface:
         com_byte = command_bytes[module_idx]
         self.l.log("Selecting module {module_idx} with TCA9548".format(module_idx=module_idx))
 
-        bus.write_byte_data(multiplex_addr, 0x04, command_bytes[module_idx])
+        self.bus.write_byte_data(multiplex_addr, 0x04, command_bytes[module_idx])
         self._current_module_selected = module_idx
