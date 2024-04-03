@@ -14,6 +14,8 @@ class TCA9548MultiplexerInterface:
         self.address = i2c_address
         self.l = logger
         self._current_module_selected = None
+
+        self.l.log("Created multiplexer with n_modules {}".format(self.n_modules))
     
     def get_current_selected_module(self):
         return self._current_module_selected
