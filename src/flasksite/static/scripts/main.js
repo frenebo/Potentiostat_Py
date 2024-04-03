@@ -177,10 +177,10 @@ class PotentiostatView
 
         // Header
         const headerTr = tbl.insertRow();
-        headerTr.insertCell().appendChild(document.createTextNode("Channel"));
+        headerTr.insertCell().appendChild(document.createTextNode("Channel #"));
         headerTr.insertCell().appendChild(document.createTextNode("Switch state"));
-        headerTr.insertCell().appendChild(document.createTextNode("Voltage"));
-        headerTr.insertCell().appendChild(document.createTextNode("Raw ADC Voltage"));
+        headerTr.insertCell().appendChild(document.createTextNode("Input Voltage"));
+        headerTr.insertCell().appendChild(document.createTextNode("Measured ADC Voltage"));
         for (let i = 0; i < n_channels; i++) {
             const tr = tbl.insertRow();
 
