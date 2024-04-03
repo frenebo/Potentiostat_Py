@@ -20,7 +20,7 @@ Requires python smbus to be installed
 # import time
 from ..logger import PrintLogger
 
-class MCP4728:
+class MCP4728DACInterface:
     """
     Control the MCP4728 DAC
     """
