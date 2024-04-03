@@ -34,7 +34,7 @@ class MCP4728:
         return byte
 
     # init object with i2caddress, default is 0x60 for MCP4728
-    def __init__(self, bus, i2c_address=0x60, module_idx, module_multiplexer, logger=PrintLogger()):
+    def __init__(self, bus, i2c_address, module_idx, module_multiplexer, logger=PrintLogger()):
         self.__bus = bus
         self.__dac_address = i2c_address
         self.__module_idx = module_idx
