@@ -231,7 +231,7 @@ class Potentiostat:
         # assert len(channel_indices) == len(channel_voltages)
 
         for chan_i in range(self.n_channels):
-            chan_voltage = channel_voltages[i]
+            chan_voltage = channel_voltages[chan_i]
 
             self.set_channel_voltage(chan_i, chan_voltage, suppress_state_change=True)
             self.channel_voltages[chan_i] = chan_voltage
