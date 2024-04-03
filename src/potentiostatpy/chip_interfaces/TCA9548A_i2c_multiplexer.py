@@ -24,6 +24,8 @@ class TCA9548MultiplexerInterface:
     def select_module(self, module_idx):
         # Stop the user from pointing the device at a board that is not connected.
         assert module_idx in range(0, self.n_modules), "Expected module_idx {} to be in range(0, {})".format(module_idx, self.n_modules)
+        if self._current_module_selected == module_idx:
+            return
             
         # The command byte tells which modules to enable and disable I2C communication with
         # We only want to talk to one at a time, so we set all bits to zero except the one
@@ -42,5 +44,5 @@ class TCA9548MultiplexerInterface:
         com_byte = command_bytes[module_idx]
         self.l.log("Selecting module {module_idx} with TCA9548".format(module_idx=module_idx))
 
-        self.bus.write_byte_data(multiplex_addr, 0x04, command_bytes[module_idx])
+        self.bus.write_byte_data(self.multiplex_addr, 0x04, command_bytes[module_idx])
         self._current_module_selected = module_idx
