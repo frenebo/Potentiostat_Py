@@ -78,6 +78,7 @@ class ADS1015ADCInterface:
         self._i2cbus = bus
         self._address = i2c_address
         self._module_idx = module_idx
+        self._module_i2c_multiplexer = module_i2c_multiplexer
         self._l = logger
         self._conversionDelay = 2
         self._maxPorts = 4
@@ -88,10 +89,12 @@ class ADS1015ADCInterface:
     def _writeRegister(self, address: int, value) :
         "Write 16-bit integer to an address pointer register"
         registerValue = [(value >> 8) & 0xFF, value & 0xFF]
+        self._module_i2c_multiplexer.select_module(self._module_idx)
         self._i2cbus.write_i2c_block_data(self._address, address, registerValue)
 
     def _readRegister(self, address: int) :
         "Read 16-bit integer value from an address pointer register"
+        self._module_i2c_multiplexer.select_module(self._module_idx)
         registerValue = self._i2cbus.read_i2c_block_data(self._address, address, 2)
         return (registerValue[0] << 8) + registerValue[1]
 
