@@ -160,8 +160,10 @@ class Potentiostat:
         # @TODO convert to voltage thru gain calculations
         print("voltage read: {}".format(raw_ads_voltage))
 
+        print("WARNING: should convert to current")
+        return raw_ads_voltage
         # self.switch_i2cmultiplexer(module_idx)
-        raise NotImplementedError()
+        # raise NotImplementedError()
     
     # Functions to set states
     
