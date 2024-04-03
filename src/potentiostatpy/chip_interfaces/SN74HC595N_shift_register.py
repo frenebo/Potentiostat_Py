@@ -1,4 +1,5 @@
 import RPi.GPIO as GPIO
+import time
 
 from ..logger import PrintLogger
 # def hc595_
