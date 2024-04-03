@@ -18,7 +18,7 @@ Requires python smbus to be installed
 # import re
 # import platform
 # import time
-from ..logger import PrintLogger()
+from ..logger import PrintLogger
 
 class MCP4728:
     """
