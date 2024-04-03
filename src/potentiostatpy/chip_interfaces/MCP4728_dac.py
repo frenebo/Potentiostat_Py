@@ -16,6 +16,8 @@ class MCP4728DACInterface:
         self.module_idx = module_idx
         self.module_multiplexer = module_multiplexer
         self.l = logger
+
+        self.l.log("Created MCP4728DACInterface with module idx {}".format(self.module_idx))
     
     def verify_connection(self):
         raise NotImplementedError()
