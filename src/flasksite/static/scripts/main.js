@@ -10,6 +10,10 @@ class PotentiostatSettingPanel
     {
         this.mainDiv = document.createElement("div");
 
+        const titleBar = document.createElement("div");
+        titleBar.innerHTML = "Settings";
+        this.mainDiv.appendChild(titleBar);
+
         this.userChangeListeners = [];
 
         // @TODO implement

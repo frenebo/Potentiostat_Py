@@ -3,3 +3,4 @@ from .MCP4728_dac import MCP4728DACInterface
 from .ADS1015_adc import ADS1015ADCInterface
 from .TCA9548A_i2c_multiplexer import TCA9548MultiplexerInterface
 from .SN74HC595N_shift_register import SN74HC595NShiftRegister
+from .i2cbus import get_bus

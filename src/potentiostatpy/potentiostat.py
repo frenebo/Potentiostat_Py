@@ -1,12 +1,7 @@
-import smbus
-from. chip_interfaces import (
-    DS3231RealTimeClockInterface,
-    MCP4728DACInterface,
-    ADS1015ADCInterface,
-    TCA9548MultiplexerInterface,
-    SN74HC595NShiftRegister
-)
+
 from .logger import PrintLogger
+
+
 
 # I2C multiplexer on main board
 TCA9548A_DEFAULT_ADDRESS = 0x70
@@ -43,7 +38,7 @@ class Potentiostat:
     n_modules: int - number of stack PCBs connected - 8 channels each, max of 8 for tot. 64 channels
 
     """
-    def __init__(self, n_modules: int, logger=PrintLogger()):
+    def __init__(self, n_modules: int, logger=PrintLogger(), use_dummy_hardware=False):
         self.n_modules = n_modules
         self.n_channels = n_modules * CHANNELS_PER_MODULE
 
@@ -53,8 +48,36 @@ class Potentiostat:
         self.channel_voltages = [None] * self.n_channels
         self.connected_channels = [None] * self.n_channels
 
+        # Are we working with real hardware, or just using stand-in dummy classes?
+        if use_dummy_hardware:
+            from .dummy_chip_interfaces import (
+                DummyDS3231RealTimeClockInterface,
+                DummyMCP4728DACInterface,
+                DummyADS1015ADCInterface,
+                DummyTCA9548MultiplexerInterface,
+                DummySN74HC595NShiftRegister,
+                dummy_get_bus,
+            )
+
+            DS3231RealTimeClockInterface = DummyDS3231RealTimeClockInterface
+            MCP4728DACInterface = DummyMCP4728DACInterface
+            ADS1015ADCInterface = DummyADS1015ADCInterface
+            TCA9548MultiplexerInterface = DummyTCA9548MultiplexerInterface
+            SN74HC595NShiftRegister = DummySN74HC595NShiftRegister
+            get_bus = dummy_get_bus
+        else:
+            from .chip_interfaces import (
+                DS3231RealTimeClockInterface,
+                MCP4728DACInterface,
+                ADS1015ADCInterface,
+                TCA9548MultiplexerInterface,
+                SN74HC595NShiftRegister,
+                get_bus,
+            )
+
+
         self.l.log("Setting up I2C bus with smbus.")
-        self.bus = smbus.SMBus(1)
+        self.bus = get_bus()
 
         self.l.log("Initializing potentiostat. # of modules: {n_modules}, # of channels: {n_channels}".format(n_modules=self.n_modules, n_channels=self.n_channels))
         self.i2c_multiplexer = TCA9548MultiplexerInterface(self.bus, self.n_modules, TCA9548A_DEFAULT_ADDRESS, logger=self.l)
