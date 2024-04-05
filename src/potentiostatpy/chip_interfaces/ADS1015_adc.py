@@ -1,7 +1,7 @@
 from ..logger import PrintLogger
 
 
-
+raise NotImplementedError()
 class ADS1015ADCInterface:
     
     def get_voltage(self, adc_subchannel_idx):

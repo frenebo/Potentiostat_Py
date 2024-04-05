@@ -175,9 +175,9 @@ class Potentiostat:
         raw_ads_voltage = raw_ads_val * f
 
         # @TODO convert to voltage thru gain calculations
-        print("voltage read: {}".format(raw_ads_voltage))
+        self.l.log("voltage read: {}".format(raw_ads_voltage))
 
-        print("WARNING: should convert to current")
+        self.l.log("WARNING: should convert to current")
         return raw_ads_voltage
         # self.switch_i2cmultiplexer(module_idx)
         # raise NotImplementedError()

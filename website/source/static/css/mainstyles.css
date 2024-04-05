@@ -11,6 +11,8 @@
 .potstat_settings_table_panel {
     max-height: 150px;
     overflow: auto;
+    max-width: 200px;
+    border: 1px solid black;
 }
 
 .big_title {

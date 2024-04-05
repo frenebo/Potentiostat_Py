@@ -8,6 +8,7 @@ import os
 
 # sys.path.append(os.path.join(os.path.dirname(sys.path[0]), 'potentiostatpy'))
 from potentiostatpy.potentiostat import Potentiostat
+from potentiostatpy.logger import CallbackLogger
 
 app = Flask(__name__,
             # static_url_path='', 
@@ -34,6 +35,18 @@ class PotentiostatNamespace(Namespace):
         self.potentiostat = potstat
         self.potentiostat.on_state_changed(self.send_out_potentiostat_state)
     
+    def connect_callback_logger(self, callback_logger):
+        print_func = lambda text, timestamp_s : print(text)
+        socket_func = lambda text, timestamp_s: self.send_out_potentiostat_logging({
+            "lines": [{
+                "type": "log",
+                "text": text,
+                "timestamp_seconds": timestamp_s,
+            }],
+        })
+        callback_logger.on_log(print_func)
+        callback_logger.on_log(socket_func)
+    
     def on_request_potentiostat_state(self, req_data):
         # print(req_data)
         # parsed = json.loads(req_data)
@@ -45,7 +58,10 @@ class PotentiostatNamespace(Namespace):
         self.potentiostat.reset_board()
     
     def send_out_potentiostat_state(self, new_state):
-        socketio.emit("potentiostat_state", self.potentiostat.get_state(), namespace=SOCKET_NAMESPACE_STR)
+        socketio.emit("potentiostat_state", new_state, namespace=SOCKET_NAMESPACE_STR)
+    
+    def send_out_potentiostat_logging(self, logging_data):
+        socketio.emit("potentiostat_logging", logging_data)
 
         # socketio.emit("potentiostat_state", self.potentiostat.get_state(), namespace=SOCKET_NAMESPACE_STR)
 
@@ -89,7 +105,9 @@ if __name__ == '__main__':
     potentiostat = None
     try:
         print("~~~~~~~~~~~~Creating Potentiostat!")
-        potentiostat = Potentiostat(n_modules=1, use_dummy_hardware=using_dummy_hardware)
+        potstat_logger = CallbackLogger()
+        potentiostat = Potentiostat(n_modules=1, use_dummy_hardware=using_dummy_hardware, logger=potstat_logger)
+        potstat_namespace.connect_callback_logger(potstat_logger)
         potstat_namespace.set_potentiostat(potentiostat)
         app.run(debug=True, host='0.0.0.0', port=5000, use_reloader=False)
         potentiostat.cleanup()
