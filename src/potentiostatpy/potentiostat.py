@@ -97,8 +97,7 @@ class Potentiostat:
             self.dac_interfaces.append(dac0_interface)
             self.dac_interfaces.append(dac1_interface)
         
-        self._set_all_channel_switches([True] * self.n_channels)
-        self._zero_all_voltages()
+        self._reset_board()
 
 
 
@@ -113,24 +112,25 @@ class Potentiostat:
             "n_modules": self.n_modules,
             "n_channels": self.n_channels,
             "channel_switch_states": self._get_channel_switch_states(),
-            "channel_output_voltages": self._get_channel_output_voltages(),
+            "channel_output_voltages": self._get_channel_voltages(),
             "channel_output_current": self._get_channel_output_currents(),
         }
 
         return potentiostat_state
     
-    def reset_board():
-        self._disconnect_all_electrodes(suppress_state_change=True)
-        self._zero_all_voltages(suppress_state_change=True)
-
-        #@TODO reset the settings of all the ADCs too
-        # self.reset_all_
-    
-
     def on_state_changed(self, listener):
         self.state_changed_listeners.append(listener)
 
 
+    def _reset_board(suppress_state_change=False):
+        self._disconnect_all_electrodes(suppress_state_change=True)
+        self._zero_all_voltages(suppress_state_change=True)
+        
+        #@TODO reset the settings of all the ADCs too
+
+        if not suppress_state_change:
+            self._state_changed()
+    
     """
     Sets the output voltages of the electrodes to zero. Will only have noticeable effect for the electrodes that are currently "on" and connected.
     """
@@ -138,8 +138,16 @@ class Potentiostat:
         self.l.log("Setting all channel voltages to zero")
         indices_to_set = list(range(self.n_channels))
         voltages_to_set = [0.0] * self.n_channels
-        self._set_all_voltages(voltages_to_set, suppress_state_change=True)
 
+        
+        assert len(channel_voltages) == self.n_channels
+
+        for chan_i in range(self.n_channels):
+            chan_voltage = channel_voltages[chan_i]
+
+            self._set_channel_voltage(chan_i, chan_voltage, suppress_state_change=True)
+            self.channel_voltages[chan_i] = chan_voltage
+        
         
         if not suppress_state_change:
             self._state_changed()
@@ -158,7 +166,7 @@ class Potentiostat:
     def _get_channel_switch_states(self):
         return self.connected_channels
 
-    def _get_channel_output_voltages(self):
+    def _get_channel_voltages(self):
         return self.channel_voltages
     
     def _get_channel_output_currents(self):
@@ -234,24 +242,6 @@ class Potentiostat:
         if not suppress_state_change:
             self._state_changed()
 
-    """
-    _set_all_voltages
-
-    Sets the all the voltages to the given list of voltages
-    """
-    def _set_all_voltages(self, channel_voltages, suppress_state_change=False):
-        assert len(channel_voltages) == self.n_channels
-        # assert len(channel_indices) == len(channel_voltages)
-
-        for chan_i in range(self.n_channels):
-            chan_voltage = channel_voltages[chan_i]
-
-            self._set_channel_voltage(chan_i, chan_voltage, suppress_state_change=True)
-            self.channel_voltages[chan_i] = chan_voltage
-        
-        if not suppress_state_change:
-            self._state_changed()
-    
 
     """
     This should be called when the Potentiostat class changes itself. Calling this notifies all listeners
