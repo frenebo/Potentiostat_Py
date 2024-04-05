@@ -3,6 +3,7 @@ import json
 from flask_socketio import SocketIO, send, Namespace
 import sys
 import os
+import time
 
 from potentiostatpy.potentiostat import Potentiostat
 from potentiostatpy.logger import CallbackLogger
@@ -59,8 +60,10 @@ class PotentiostatNamespace(Namespace):
         self.send_out_potentiostat_state(self.potentiostat.get_state())
     
     def on_client_changed_potstat_settings(self, req_data):
+        # print(req_data)
         setting_id = req_data["setting_id"];
-        option_picked = req_dat["option_picked"];
+        option_picked = req_data["option_picked"];
+        time.sleep(1)
 
         self.potentiostat.change_setting(setting_id, option_picked);
     
@@ -68,7 +71,8 @@ class PotentiostatNamespace(Namespace):
         socketio.emit("potentiostat_state", new_state, namespace=SOCKET_NAMESPACE_STR)
     
     def send_out_potentiostat_logging(self, logging_data):
-        socketio.emit("potentiostat_logging", logging_data)
+        print("sending out potentiostat logging ")
+        socketio.emit("potentiostat_logging", logging_data, namespace=SOCKET_NAMESPACE_STR)
 
 
 potstat_namespace = PotentiostatNamespace(SOCKET_NAMESPACE_STR)

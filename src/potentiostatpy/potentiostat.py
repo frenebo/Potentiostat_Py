@@ -99,7 +99,7 @@ class Potentiostat:
         
         self._reset_board()
 
-    def change_setting(setting_id, option_picked):
+    def change_setting(self, setting_id, option_picked):
         if setting_id == "control_mode":
             self._change_control_mode(option_picked)
         else:
@@ -107,9 +107,23 @@ class Potentiostat:
         # pass
         # self.potentiostat.change_setting(setting_id, option_picked);
     
-    def _change_control_mode(new_mode):
+    def _change_control_mode(self, new_mode, suppress_state_change=False):
         if self._control_mode == new_mode:
             return
+        
+        if new_mode == "manual":
+            self._control_mode = "manual"
+            # self.l.log("unimplemented manual mode")
+        elif new_mode == "cyclic":
+            # self._control_mode = "cyclic"
+            self.l.log("unimplemented cyclic mode")
+            self._control_mode = "manual"
+        else:
+            self.l.error("Unknown control mode '{new_mode}'".format(new_mode=new_mode))
+            return
+        
+        if not suppress_state_change:
+            self._state_changed()
 
     def cleanup(self):
         # Let go of the GPIO pins used by the switch_shift_register
@@ -121,6 +135,7 @@ class Potentiostat:
         potentiostat_state = {
             "n_modules": self._n_modules,
             "n_channels": self._n_channels,
+            "control_mode": self._control_mode,
             "channel_switch_states": self._get_channel_switch_states(),
             "channel_output_voltages": self._get_channel_voltages(),
             "channel_output_current": self._get_channel_output_currents(),
@@ -132,8 +147,8 @@ class Potentiostat:
         self._state_changed_listeners.append(listener)
 
 
-    def _reset_board(suppress_state_change=False):
-        self._change_control_mode("manual")
+    def _reset_board(self, suppress_state_change=False):
+        self._change_control_mode("manual", suppress_state_change=True)
         self._disconnect_all_electrodes(suppress_state_change=True)
         self._zero_all_voltages(suppress_state_change=True)
         
@@ -148,13 +163,10 @@ class Potentiostat:
     def _zero_all_voltages(self, suppress_state_change=False):
         self.l.log("Setting all channel voltages to zero")
         indices_to_set = list(range(self._n_channels))
-        voltages_to_set = [0.0] * self._n_channels
-
-        
-        assert len(_channel_voltages) == self._n_channels
+        # voltages_to_set = [0.0] * self._n_channels
 
         for chan_i in range(self._n_channels):
-            chan_voltage = _channel_voltages[chan_i]
+            chan_voltage = 0
 
             self._set_channel_voltage(chan_i, chan_voltage, suppress_state_change=True)
             self._channel_voltages[chan_i] = chan_voltage
@@ -207,9 +219,9 @@ class Potentiostat:
         raw_ads_voltage = raw_ads_val * f
 
         # @TODO convert to voltage thru gain calculations
-        self.l.log("voltage read: {}".format(raw_ads_voltage))
+        # self.l.log("voltage read: {}".format(raw_ads_voltage))
 
-        self.l.log("WARNING: should convert to current")
+        # self.l.log("WARNING: should convert to current")
         return raw_ads_voltage
         # self.switch_i2cmultiplexer(module_idx)
         # raise NotImplementedError()

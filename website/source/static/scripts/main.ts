@@ -125,7 +125,6 @@ class PotentiostatView {
     }
 
     private userChangedChannelInputsPanel(data: ChannelInputsSettingChangeData): void {
-        // @TODO
         console.log("Unimplemented userChangedChannelInputsPanel");
     }
 
@@ -138,13 +137,13 @@ class PotentiostatView {
         console.log(newPotentiostatState);
         this.basicPanel.innerHTML = "";
         this.basicPanel.appendChild(this.createPotStatSummaryDiv(newPotentiostatState));
+
+        this.potstat_setting_panel.updateSettingValue("control_mode", newPotentiostatState["control_mode"])
+        // 
     }
 
     private updateWithLoggingData(logData: PotstatLoggingData): void {
-        // console.log("received logging data: ");
-        // console.log(logData);
         this.loggingPanel.updateLog(logData);
-        // this.loggingPanel.
     }
 
     private createPotStatSummaryDiv(potentiostatState: PotstatStateData): HTMLDivElement {
@@ -235,6 +234,7 @@ class ServerInterface {
         });
 
         this.socketio.on("potentiostat_logging", (message: PotstatLoggingData) => {
+            console.log(message);
             for (const listener of this.potstatLoggingListeners) {
                 listener(message);
             }
