@@ -1,7 +1,4 @@
-
 from .logger import PrintLogger
-
-
 
 # I2C multiplexer on main board
 TCA9548A_DEFAULT_ADDRESS = 0x70
@@ -21,8 +18,6 @@ ADS_1_STACK_ADDR = 0b1001000 # 48
 
 DAC_0_STACK_ADDR = 0b1100000 # 60
 DAC_1_STACK_ADDR = 0b1100001 # 61
-print("TODO: Update DAC_0_STACK_ADDR")
-
 
 # Pins for accessing the shift registers that control the analog switches on the stack boards
 SDI_pin = 11 #(gpio 17)
@@ -90,12 +85,8 @@ class Potentiostat:
         # Create classes to interface with the different ADCs and DACs. Each one is told
         # which module it belongs to, so that it can manage switching the multiplexer
         for module_idx in range(self.n_modules):
-            # module_idx * CHANNELS_PER_MODULE
             adc0_interface = ADS1015ADCInterface(self.bus, ADS_0_STACK_ADDR, module_idx, self.i2c_multiplexer, logger=self.l)
             adc1_interface = ADS1015ADCInterface(self.bus, ADS_1_STACK_ADDR, module_idx, self.i2c_multiplexer, logger=self.l)
-
-            
-            # ADS.setGain(ADS.PGA_4_096V)
 
             self.adc_interfaces.append(adc0_interface)
             self.adc_interfaces.append(adc1_interface)

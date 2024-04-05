@@ -8,6 +8,11 @@
     overflow: auto;
 }
 
+.potstat_settings_table_panel {
+    max-height: 150px;
+    overflow: auto;
+}
+
 .big_title {
     font-size: large;
     color: rgb(224, 164, 43);

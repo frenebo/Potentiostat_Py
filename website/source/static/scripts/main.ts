@@ -4,8 +4,15 @@
 const SERVER_SOCKET_PATH = `/socket_path`;
 const VERSION = "0.1";
 
+
+type PotstatSettingChangeData = {};
 class PotentiostatSettingPanel
 {
+    private mainDiv: HTMLDivElement;
+    private settingsTablePanel: HTMLDivElement;
+    private settingsTbl: HTMLTableElement;
+    private userChangeListeners: Array<(data: PotstatSettingChangeData) => void>;
+
     constructor()
     {
         this.mainDiv = document.createElement("div");
@@ -14,9 +21,49 @@ class PotentiostatSettingPanel
         titleBar.innerHTML = "Settings";
         this.mainDiv.appendChild(titleBar);
 
-        this.userChangeListeners = [];
+        this.settingsTablePanel = document.createElement("div");
+        this.settingsTablePanel.classList.add('potstat_settings_table_panel');
+        this.mainDiv.appendChild(this.settingsTablePanel);
 
-        // @TODO implement
+        this.settingsTbl = document.createElement("table");
+        this.settingsTbl.style.width = '100px';
+        this.settingsTbl.style.border = '1px solid black';
+
+        // this.settingsTa
+
+        // const headerTr = tbl.
+        this.addMultipleChoiceSetting("control_mode", "Control Mode", [
+            {"id": "manual", "display": "Manual"},
+            {"id": "cyclic", "display": "Cyclic Voltammetry"},
+        ]);
+        
+
+        // const tbl = document.createElement('table');
+        // tbl.style.width = '100px';
+        // tbl.style.border = '1px solid black';
+
+        // // Header
+        // const headerTr = tbl.insertRow();
+        // headerTr.insertCell().appendChild(document.createTextNode("Channel #"));
+        // headerTr.insertCell().appendChild(document.createTextNode("Switch state"));
+        // headerTr.insertCell().appendChild(document.createTextNode("Input Voltage"));
+        // headerTr.insertCell().appendChild(document.createTextNode("Measured ADC Voltage"));
+        // for (let i = 0; i < n_channels; i++) {
+        //     const tr = tbl.insertRow();
+
+        //     // Name
+        //     tr.insertCell().appendChild(document.createTextNode(i.toString()));
+
+        //     // On/off state
+        //     const switch_td = tr.insertCell();
+
+
+        this.userChangeListeners = [];
+    }
+
+    addMultipleChoiceSetting(setting_id: string, setting_display_name: string, options_info: Array<{"id": string, "display": string}>)
+    {
+
     }
 
     getHtmlElement()
@@ -24,14 +71,20 @@ class PotentiostatSettingPanel
         return this.mainDiv;
     }
 
-    onUserChange(listener)
+    onUserChange(listener: (arg: PotstatSettingChangeData) => void)
     {
         this.userChangeListeners.push(listener);
     }
 }
 
+type ChannelInputsSettingChangeData = {};
 class ChannelInputsPanel
 {
+    private mainDiv: HTMLDivElement;
+    private lastUpdatedDiv: HTMLDivElement;
+    private inputsTablePanel: HTMLDivElement;
+    private userChangeListeners: Array<(arg: ChannelInputsSettingChangeData) => void>;
+
     constructor()
     {
         this.mainDiv = document.createElement("div");
@@ -55,7 +108,7 @@ class ChannelInputsPanel
         return this.mainDiv;
     }
 
-    onUserChange(listener)
+    onUserChange(listener: (data: ChannelInputsSettingChangeData) => void)
     {
         this.userChangeListeners.push(listener);
     }
@@ -63,6 +116,10 @@ class ChannelInputsPanel
 
 class ChannelOutputsPanel
 {
+    private mainDiv: HTMLDivElement;
+    private lastUpdatedDiv: HTMLDivElement;
+    private inputsTablePanel: HTMLDivElement;
+
     constructor()
     {
         this.mainDiv = document.createElement("div");
@@ -85,15 +142,38 @@ class ChannelOutputsPanel
     }
 }
 
+class LoggingPanel
+{
+    private mainDiv: HTMLDivElement;
+
+    constructor()
+    {
+        this.mainDiv = document.createElement("div");
+    }
+    
+    getHtmlElement()
+    {
+        return this.mainDiv;
+    }
+}
+
 
 class PotentiostatView
 {
-    constructor(appDiv, serverInterface)
+    private appDiv: HTMLDivElement;
+    private basicPanel: HTMLDivElement;
+    private serverInterface: ServerInterface;
+    private potstat_setting_panel: PotentiostatSettingPanel;
+    private channel_inputs_panel: ChannelInputsPanel;
+    private channel_outputs_panel: ChannelOutputsPanel;
+    private loggingPanel: LoggingPanel;
+
+    constructor(appDiv: HTMLDivElement, serverInterface: ServerInterface)
     {
         this.appDiv = appDiv;
         this.serverInterface = serverInterface;
 
-        this.serverInterface.onServerStateChange((newState) => { this.updatePotentiostatInfo(newState); });
+        this.serverInterface.onServerStateChange((newState: ServerStateData) => { this.updatePotentiostatInfo(newState); });
 
         const titleBar = document.createElement('div');
         titleBar.classList.add('big_title');
@@ -115,6 +195,7 @@ class PotentiostatView
         this.potstat_setting_panel = new PotentiostatSettingPanel();
         this.channel_inputs_panel = new ChannelInputsPanel();
         this.channel_outputs_panel = new ChannelOutputsPanel();
+        this.loggingPanel = new LoggingPanel();
 
         this.potstat_setting_panel.onUserChange((data) => { this.userChangedSettingsPanel(data); });
         this.channel_inputs_panel.onUserChange((data) => { this.userChangedChannelInputsPanel(data); });
@@ -150,23 +231,31 @@ class PotentiostatView
 
         this.basicPanel = document.createElement("div");
         this.appDiv.appendChild(this.basicPanel);
+        
+
+        // Console area
+        const loggingDiv = document.createElement("div");
+        this.appDiv.appendChild(loggingDiv);
+        loggingDiv.classList.add("panel_block");
+        loggingDiv.appendChild(this.loggingPanel.getHtmlElement());
+
 
         this.serverInterface.requestPotentiostatState();
     }
 
-    userChangedChannelInputsPanel(data)
+    userChangedChannelInputsPanel(data: ChannelInputsSettingChangeData)
     {
         // @TODO
         console.log("Unimplemented userChangedChannelInputsPanel");
     }
 
-    userChangedSettingsPanel(data)
+    userChangedSettingsPanel(data: PotstatSettingChangeData)
     {
         // @TODO
         console.log("Unimplemented userChangedSettingsPanel");
     }
 
-    updatePotentiostatInfo(newPotentiostatState)
+    updatePotentiostatInfo(newPotentiostatState: ServerStateData)
     {
         console.log("Received new state from server:");
         console.log(newPotentiostatState);
@@ -174,11 +263,20 @@ class PotentiostatView
         this.basicPanel.appendChild(this.createPotStatSummaryDiv(newPotentiostatState));
     }
 
-    createPotStatSummaryDiv(potentiostatState)
+    createPotStatSummaryDiv(potentiostatState: ServerStateData)
     {
-        const n_channels = potentiostatState["n_channels"];
-        // const body = document.body,
+        const summaryDiv = document.createElement("div");
+
+        const n_channels: number | null = potentiostatState["n_channels"];
+        if (n_channels === null)
+        {
+            summaryDiv.innerHTML = "Number of channels is undefined";
+            return summaryDiv;
+        }
+        
         const tbl = document.createElement('table');
+        summaryDiv.appendChild(tbl);
+
         tbl.style.width = '100px';
         tbl.style.border = '1px solid black';
 
@@ -227,19 +325,31 @@ class PotentiostatView
             current_td.style.border = '1px solid black';
         }
         
-        return tbl;
+        return summaryDiv;
     }
 }
 
+type ServerStateData = {
+    "n_modules": number | null;
+    "n_channels": number | null;
+    "channel_switch_states": Array<boolean | null>;
+    "channel_output_voltages": Array<number | null>;
+    "channel_output_current": Array<number | null>;
+};
+
+declare var io: any;
+
 class ServerInterface
 {
+    private stateChangedListeners: Array<(arg: ServerStateData) => void>;
+    private socketio: any;
     constructor()
     {
         // Socketio should be imported
         this.socketio = io(SERVER_SOCKET_PATH);
         this.stateChangedListeners = [];
 
-        this.socketio.on("potentiostat_state", (message) => {
+        this.socketio.on("potentiostat_state", (message: ServerStateData) => {
             for (const listener of this.stateChangedListeners) {
                 listener(message);
             }
@@ -256,14 +366,14 @@ class ServerInterface
         this.socketio.emit("request_potentiostat_state", "");
     }
 
-    onServerStateChange(listener)
+    onServerStateChange(listener: (data: ServerStateData) => void)
     {
         this.stateChangedListeners.push(listener);
     }
 }
 
 
-function setupApp(appDiv)
+function setupApp(appDiv: HTMLDivElement)
 {
     const serverInterface = new ServerInterface();
     const pot_view = new PotentiostatView(appDiv, serverInterface);

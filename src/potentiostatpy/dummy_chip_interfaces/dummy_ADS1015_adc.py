@@ -1,6 +1,7 @@
 import math
 
 from ..logger import PrintLogger
+import numpy as np
 
 
 class DummyADS1015ADCInterface:

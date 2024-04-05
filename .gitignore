@@ -1,3 +1,13 @@
+# Node/npm
+node_modules/
+/website/build/
+__pycache__
+
+
+# any vscode stuff
+.vscode/
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

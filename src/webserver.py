@@ -11,8 +11,8 @@ from potentiostatpy.potentiostat import Potentiostat
 
 app = Flask(__name__,
             # static_url_path='', 
-            static_folder=  'flasksite/static',
-            template_folder='flasksite/templates')
+            static_folder=  '../website/build/static',
+            template_folder='../website/build/templates')
 
             
 
@@ -79,10 +79,12 @@ socketio.on_namespace(potstat_namespace)
 
 
 if __name__ == '__main__':
-    if len(sys.argv) >= 2 and sys.argv[1] == "dummy":
-        using_dummy_hardware = True
-    else:
-        using_dummy_hardware = False
+    using_dummy_hardware = False
+    if len(sys.argv) >= 2:
+        if sys.argv[1] == "dummy":
+            using_dummy_hardware = True
+        else:
+            raise Exception("Unknown argument {}, should be 'dummy' or no argument".format(sys.argv[1]))
     
     potentiostat = None
     try:

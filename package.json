@@ -1,0 +1,12 @@
+{
+  "type": "module",
+  "devDependencies": {
+    "del": "^7.1.0",
+    "gulp": "^5.0.0",
+    "gulp-tslint": "^8.1.4",
+    "gulp-typescript": "^6.0.0-alpha.1",
+    "socket.io": "^4.7.5",
+    "socket.io-client": "^4.7.5",
+    "typescript": "^5.4.4"
+  }
+}
