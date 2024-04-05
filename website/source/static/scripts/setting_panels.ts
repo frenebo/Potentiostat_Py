@@ -39,7 +39,7 @@ export class PotentiostatSettingPanel {
         this.userChangeListeners = [];
     }
 
-    addMultipleChoiceSetting(setting_id: string, setting_display_name: string, options_info: Array<{"id": string, "display": string}>) {
+    private addMultipleChoiceSetting(setting_id: string, setting_display_name: string, options_info: Array<{"id": string, "display": string}>): void {
         const choiceTableRow = this.settingsTbl.insertRow();
         
         choiceTableRow.insertCell().appendChild(document.createTextNode(setting_display_name));
@@ -68,11 +68,11 @@ export class PotentiostatSettingPanel {
         });
     }
 
-    getHtmlElement() {
+    public getHtmlElement(): HTMLDivElement {
         return this.mainDiv;
     }
 
-    callSettingChangeListeners(setting_id: string, option_picked_id: string) {
+    private callSettingChangeListeners(setting_id: string, option_picked_id: string): void {
         for (const l of this.userChangeListeners)
         {
             l({
@@ -82,7 +82,7 @@ export class PotentiostatSettingPanel {
         }
     }
 
-    onUserChange(listener: (arg: PotstatSettingChangeData) => void) {
+    public onUserChange(listener: (arg: PotstatSettingChangeData) => void): void {
         this.userChangeListeners.push(listener);
     }
 }
@@ -111,11 +111,11 @@ export class ChannelInputsPanel {
         this.userChangeListeners = [];
     }
 
-    getHtmlElement() {
+    public getHtmlElement(): HTMLDivElement {
         return this.mainDiv;
     }
 
-    onUserChange(listener: (data: ChannelInputsSettingChangeData) => void) {
+    public onUserChange(listener: (data: ChannelInputsSettingChangeData) => void): void {
         this.userChangeListeners.push(listener);
     }
 }

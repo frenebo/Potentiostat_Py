@@ -33,7 +33,7 @@ class ChannelOutputsPanel {
         this.mainDiv.appendChild(this.inputsTablePanel);
     }
 
-    getHtmlElement() {
+    public getHtmlElement(): HTMLDivElement {
         return this.mainDiv;
     }
 }
@@ -124,31 +124,33 @@ class PotentiostatView {
         this.serverInterface.requestPotentiostatState();
     }
 
-    userChangedChannelInputsPanel(data: ChannelInputsSettingChangeData) {
+    private userChangedChannelInputsPanel(data: ChannelInputsSettingChangeData): void {
         // @TODO
         console.log("Unimplemented userChangedChannelInputsPanel");
     }
 
-    userChangedSettingsPanel(data: PotstatSettingChangeData) {
-        // @TODO
+    private userChangedSettingsPanel(data: PotstatSettingChangeData): void {
+
+        // this.serverInterface.sendPotstatSettingChangeData()
+        // // @TODO
         console.log("Unimplemented userChangedSettingsPanel");
     }
 
-    updatePotentiostatInfo(newPotentiostatState: PotstatStateData) {
+    private updatePotentiostatInfo(newPotentiostatState: PotstatStateData): void {
         console.log("Received new state from server:");
         console.log(newPotentiostatState);
         this.basicPanel.innerHTML = "";
         this.basicPanel.appendChild(this.createPotStatSummaryDiv(newPotentiostatState));
     }
 
-    private updateWithLoggingData(logData: PotstatLoggingData) {
+    private updateWithLoggingData(logData: PotstatLoggingData): void {
         // console.log("received logging data: ");
         // console.log(logData);
         this.loggingPanel.updateLog(logData);
         // this.loggingPanel.
     }
 
-    createPotStatSummaryDiv(potentiostatState: PotstatStateData) {
+    private createPotStatSummaryDiv(potentiostatState: PotstatStateData): HTMLDivElement {
         const summaryDiv = document.createElement("div");
 
         const n_channels: number | null = potentiostatState["n_channels"];
@@ -257,18 +259,17 @@ class ServerInterface {
         this.socketio.emit("request_potentiostat_state", "");
     }
 
-    public onServerStateChange(listener: (data: PotstatStateData) => void) {
+    public onServerStateChange(listener: (data: PotstatStateData) => void): void {
         this.stateChangedListeners.push(listener);
     }
 
-    public onPotstatLogging(listener: (data: PotstatLoggingData) => void) {
+    public onPotstatLogging(listener: (data: PotstatLoggingData) => void): void {
         this.potstatLoggingListeners.push(listener);
     }
 }
 
 
-function setupApp(appDiv: HTMLDivElement)
-{
+function setupApp(appDiv: HTMLDivElement): void {
     const serverInterface = new ServerInterface();
     const pot_view = new PotentiostatView(appDiv, serverInterface);
 }

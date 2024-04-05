@@ -7,11 +7,11 @@ export class LoggingPanel {
         this.mainDiv = document.createElement("div");
     }
     
-    getHtmlElement() {
+    public getHtmlElement(): HTMLDivElement {
         return this.mainDiv;
     }
 
-    public updateLog(logData: PotstatLoggingData) {
+    public updateLog(logData: PotstatLoggingData): void {
         console.log("Unimplemented logging");
         console.log(logData)
     }
