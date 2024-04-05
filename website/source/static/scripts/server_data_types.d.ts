@@ -13,9 +13,11 @@ export type PotstatStateData = {
     "n_modules": number | null;
     "n_channels": number | null;
     "control_mode": ControlModeString;
-    "channel_switch_states": Array<boolean | null>;
-    "channel_output_voltages": Array<number | null>;
-    "channel_output_current": Array<number | null>;
+    "channels": Array<{
+        "switch_state": boolean | null;
+        "voltage": number | null;
+        "current": number | null;
+    }>;
 };
 
 // type PotstatSettings = 

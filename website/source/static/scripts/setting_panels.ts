@@ -1,5 +1,5 @@
 import { UserChangedPotstatSettingsData } from "./server_data_types.js";
-// export type PotstatSettingChangeData = 
+
 export class PotentiostatSettingPanel {
     private mainDiv: HTMLDivElement;
     private settingsTablePanel: HTMLDivElement;
@@ -129,7 +129,7 @@ export class PotentiostatSettingPanel {
 }
 
 export type ChannelInputsSettingChangeData = {};
-export class ChannelInputsPanel {
+export class ChannelsDataPanel {
     private mainDiv: HTMLDivElement;
     private lastUpdatedDiv: HTMLDivElement;
     private inputsTablePanel: HTMLDivElement;

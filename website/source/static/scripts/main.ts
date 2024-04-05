@@ -1,6 +1,6 @@
 import {
     PotentiostatSettingPanel,
-    ChannelInputsPanel,
+    ChannelsDataPanel,
     ChannelInputsSettingChangeData,
 } from "./setting_panels.js";
 import { LoggingPanel } from "./logging_panel.js";
@@ -48,7 +48,7 @@ class PotentiostatView {
     private basicPanel: HTMLDivElement;
     private serverInterface: ServerInterface;
     private potstat_setting_panel: PotentiostatSettingPanel;
-    private channel_inputs_panel: ChannelInputsPanel;
+    private channels_data_panel: ChannelsDataPanel;
     private channel_outputs_panel: ChannelOutputsPanel;
     private loggingPanel: LoggingPanel;
 
@@ -77,15 +77,15 @@ class PotentiostatView {
 
         // Set up the control, inputs, outputs channels
         this.potstat_setting_panel = new PotentiostatSettingPanel();
-        this.channel_inputs_panel = new ChannelInputsPanel();
+        this.channels_data_panel = new ChannelsDataPanel();
         this.channel_outputs_panel = new ChannelOutputsPanel();
         this.loggingPanel = new LoggingPanel();
 
         this.potstat_setting_panel.onUserChange((data) => { this.userChangedSettingsPanel(data); });
-        this.channel_inputs_panel.onUserChange((data) => { this.userChangedChannelInputsPanel(data); });
+        this.channels_data_panel.onUserChange((data) => { this.userChangedChannelInputsPanel(data); });
         
 
-        // Three panels - control panel, input panel, output panel
+        // Three panels - control panel, channel data panel, output panel
         const panelDiv = document.createElement("div");
         this.appDiv.appendChild(panelDiv);
         panelDiv.classList.add("panels_row");
@@ -98,11 +98,11 @@ class PotentiostatView {
         settingsPanelDiv.appendChild(this.potstat_setting_panel.getHtmlElement());
         
 
-        // Inputs panel
-        const inputPanelDiv = document.createElement("div");
-        panelDiv.appendChild(inputPanelDiv);
-        inputPanelDiv.classList.add("panel_block");        
-        inputPanelDiv.appendChild(this.channel_inputs_panel.getHtmlElement());
+        // Channels data panel
+        const channelsDataPanelDiv = document.createElement("div");
+        panelDiv.appendChild(channelsDataPanelDiv);
+        channelsDataPanelDiv.classList.add("panel_block");        
+        channelsDataPanelDiv.appendChild(this.channels_data_panel.getHtmlElement());
 
         // Outputs panel
         const outputPanelDiv = document.createElement("div");
@@ -135,80 +135,15 @@ class PotentiostatView {
     private updatePotentiostatInfo(newPotentiostatState: PotstatStateData): void {
         console.log("Received new state from server:");
         console.log(newPotentiostatState);
-        this.basicPanel.innerHTML = "";
-        this.basicPanel.appendChild(this.createPotStatSummaryDiv(newPotentiostatState));
 
         this.potstat_setting_panel.updateSettingValue("control_mode", newPotentiostatState["control_mode"])
-        // 
+        // this.channels_data_panel.updateChannelData(newPotentiostatState[])
     }
 
     private updateWithLoggingData(logData: PotstatLoggingData): void {
         this.loggingPanel.updateLog(logData);
     }
 
-    private createPotStatSummaryDiv(potentiostatState: PotstatStateData): HTMLDivElement {
-        const summaryDiv = document.createElement("div");
-
-        const n_channels: number | null = potentiostatState["n_channels"];
-        if (n_channels === null)
-        {
-            summaryDiv.innerHTML = "Number of channels is undefined";
-            return summaryDiv;
-        }
-        
-        const tbl = document.createElement('table');
-        summaryDiv.appendChild(tbl);
-
-        tbl.style.width = '100px';
-        tbl.style.border = '1px solid black';
-
-        // Header
-        const headerTr = tbl.insertRow();
-        headerTr.insertCell().appendChild(document.createTextNode("Channel #"));
-        headerTr.insertCell().appendChild(document.createTextNode("Switch state"));
-        headerTr.insertCell().appendChild(document.createTextNode("Input Voltage"));
-        headerTr.insertCell().appendChild(document.createTextNode("Measured ADC Voltage"));
-        for (let i = 0; i < n_channels; i++) {
-            const tr = tbl.insertRow();
-
-            // Name
-            tr.insertCell().appendChild(document.createTextNode(i.toString()));
-
-            // On/off state
-            const switch_td = tr.insertCell();
-            const switch_state = potentiostatState["channel_switch_states"][i];
-            let on_off_text = "";
-            if (switch_state === null) on_off_text = "?";
-            else if (switch_state === true) on_off_text = "On";
-            else if (switch_state === false) on_off_text = "Off";
-            else throw Error("Invalid switch state " + switch_state);
-
-            switch_td.appendChild(document.createTextNode(on_off_text));
-            switch_td.style.border = '1px solid black';
-
-            // Voltage
-            const voltage_td = tr.insertCell();
-            const voltage_state = potentiostatState["channel_output_voltages"][i];
-            let voltage_text = "";
-            if (voltage_state === null) voltage_text = "?";
-            else voltage_text = voltage_state.toString();
-
-            voltage_td.appendChild(document.createTextNode(voltage_text));
-            voltage_td.style.border = '1px solid black';
-
-            // Current
-            const current_td = tr.insertCell();
-            const current_state = potentiostatState["channel_output_current"][i];
-            let current_text = "";
-            if (current_state === null) current_text = "?";
-            else current_text = current_state.toString();
-
-            current_td.appendChild(document.createTextNode(current_text));
-            current_td.style.border = '1px solid black';
-        }
-        
-        return summaryDiv;
-    }
 }
 
 

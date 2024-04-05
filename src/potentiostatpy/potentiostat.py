@@ -132,13 +132,24 @@ class Potentiostat:
     # Functions to read state
     
     def get_state(self):
+        channel_data = []
+        
+        switch_states = self._get_channel_switch_states()
+        input_voltages = self._get_channel_voltages()
+        output_currents = self._get_channel_output_currents()
+
+        for i in range(self._n_channels):
+            channel_data.append({
+                "switch_state": switch_states[i],
+                "voltage": input_voltages[i],
+                "current": output_currents[i],
+            })
+
         potentiostat_state = {
             "n_modules": self._n_modules,
             "n_channels": self._n_channels,
             "control_mode": self._control_mode,
-            "channel_switch_states": self._get_channel_switch_states(),
-            "channel_output_voltages": self._get_channel_voltages(),
-            "channel_output_current": self._get_channel_output_currents(),
+            "channels": channel_data,
         }
 
         return potentiostat_state
