@@ -14,3 +14,10 @@ export type PotstatStateData = {
     "channel_output_voltages": Array<number | null>;
     "channel_output_current": Array<number | null>;
 };
+
+// type PotstatSettings = 
+
+export type UserChangedPotstatSettingsData = {
+    setting_id: string;
+    option_picked: string;
+};

@@ -1,13 +1,10 @@
-
-export type PotstatSettingChangeData = {
-    setting_id: string;
-    option_picked: string;
-};
+import { UserChangedPotstatSettingsData } from "./server_data_types.js";
+// export type PotstatSettingChangeData = 
 export class PotentiostatSettingPanel {
     private mainDiv: HTMLDivElement;
     private settingsTablePanel: HTMLDivElement;
     private settingsTbl: HTMLTableElement;
-    private userChangeListeners: Array<(data: PotstatSettingChangeData) => void>;
+    private userChangeListeners: Array<(data: UserChangedPotstatSettingsData) => void>;
 
     private multipleChoicesettings: Array<{
         tableRow: HTMLTableRowElement;
@@ -82,7 +79,7 @@ export class PotentiostatSettingPanel {
         }
     }
 
-    public onUserChange(listener: (arg: PotstatSettingChangeData) => void): void {
+    public onUserChange(listener: (arg: UserChangedPotstatSettingsData) => void): void {
         this.userChangeListeners.push(listener);
     }
 }

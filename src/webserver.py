@@ -9,7 +9,6 @@ from potentiostatpy.logger import CallbackLogger
 
 
 app = Flask(__name__,
-            # static_url_path='', 
             static_folder=  '../website/build/static',
             template_folder='../website/build/templates')
 
@@ -30,21 +29,40 @@ class PotentiostatNamespace(Namespace):
         self.potentiostat.on_state_changed(self.send_out_potentiostat_state)
     
     def connect_callback_logger(self, callback_logger):
-        print_func = lambda text, timestamp_s : print(text)
-        callback_logger.on_log(print_func)
+        # Log messages
+        print_log_func = lambda text, timestamp_s : print(text)
+        callback_logger.on_log(print_log_func)
 
-        socket_func = lambda text, timestamp_s: self.send_out_potentiostat_logging({
+        socket_log_func = lambda text, timestamp_s: self.send_out_potentiostat_logging({
             "lines": [{
                 "type": "log",
                 "text": text,
                 "timestamp_seconds": timestamp_s,
             }],
         })
-        callback_logger.on_log(socket_func)
+        callback_logger.on_log(socket_log_func)
+
+        # Error messages
+        print_error_func = lambda text, timestamp_s : print(text)
+        callback_logger.on_error(print_error_func)
+
+        socket_error_func = lambda text, timestamp_s: self.send_out_potentiostat_logging({
+            "lines": [{
+                "type": "error:",
+                "text": text,
+                "timestamp_seconds": timestamp_s
+            }]
+        })
+        callback_logger.on_error(socket_error_func)
     
     def on_request_potentiostat_state(self, req_data):
         self.send_out_potentiostat_state(self.potentiostat.get_state())
     
+    def on_client_changed_potstat_settings(self, req_data):
+        setting_id = req_data["setting_id"];
+        option_picked = req_dat["option_picked"];
+
+        self.potentiostat.change_setting(setting_id, option_picked);
     
     def send_out_potentiostat_state(self, new_state):
         socketio.emit("potentiostat_state", new_state, namespace=SOCKET_NAMESPACE_STR)

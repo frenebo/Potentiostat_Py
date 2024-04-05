@@ -29,19 +29,19 @@ class Potentiostat:
     """
     Class to communicate with and keep track of the different chips
     of the potentiostat's board and stack modules
-
-    n_modules: int - number of stack PCBs connected - 8 channels each, max of 8 for tot. 64 channels
-
     """
     def __init__(self, n_modules: int, logger=PrintLogger(), use_dummy_hardware=False):
-        self.n_modules = n_modules
-        self.n_channels = n_modules * CHANNELS_PER_MODULE
-
         self.l = logger
-        self.state_changed_listeners = []
 
-        self.channel_voltages = [None] * self.n_channels
-        self.connected_channels = [None] * self.n_channels
+        self._n_modules = n_modules
+        self._n_channels = n_modules * CHANNELS_PER_MODULE
+
+        self._state_changed_listeners = []
+
+        self._channel_voltages = [None] * self._n_channels
+        self._connected_channels = [None] * self._n_channels
+
+        self._control_mode = None
 
         # Are we working with real hardware, or just using stand-in dummy classes?
         if use_dummy_hardware:
@@ -74,17 +74,17 @@ class Potentiostat:
         self.l.log("Setting up I2C bus with smbus.")
         self.bus = get_bus()
 
-        self.l.log("Initializing potentiostat. # of modules: {n_modules}, # of channels: {n_channels}".format(n_modules=self.n_modules, n_channels=self.n_channels))
-        self.i2c_multiplexer = TCA9548MultiplexerInterface(self.bus, self.n_modules, TCA9548A_DEFAULT_ADDRESS, logger=self.l)
+        self.l.log("Initializing potentiostat. # of modules: {n_modules}, # of channels: {n_channels}".format(n_modules=self._n_modules, n_channels=self._n_channels))
+        self.i2c_multiplexer = TCA9548MultiplexerInterface(self.bus, self._n_modules, TCA9548A_DEFAULT_ADDRESS, logger=self.l)
         self.rtc = DS3231RealTimeClockInterface(self.bus, DS3231_ADDRESS, logger=self.l)
-        self.switch_shift_register = SN74HC595NShiftRegister(SDI_pin, RCLK_pin, SRCLK_pin, self.n_channels, logger=self.l)
+        self.switch_shift_register = SN74HC595NShiftRegister(SDI_pin, RCLK_pin, SRCLK_pin, self._n_channels, logger=self.l)
 
         self.adc_interfaces = []
         self.dac_interfaces = []
 
         # Create classes to interface with the different ADCs and DACs. Each one is told
         # which module it belongs to, so that it can manage switching the multiplexer
-        for module_idx in range(self.n_modules):
+        for module_idx in range(self._n_modules):
             adc0_interface = ADS1015ADCInterface(self.bus, ADS_0_STACK_ADDR, module_idx, self.i2c_multiplexer, logger=self.l)
             adc1_interface = ADS1015ADCInterface(self.bus, ADS_1_STACK_ADDR, module_idx, self.i2c_multiplexer, logger=self.l)
 
@@ -99,7 +99,17 @@ class Potentiostat:
         
         self._reset_board()
 
-
+    def change_setting(setting_id, option_picked):
+        if setting_id == "control_mode":
+            self._change_control_mode(option_picked)
+        else:
+            self.l.error("Cannot change setting '{setting}' to '{pick}' - unknown setting '{setting}'".format(setting=setting_id, pick=option_picked))
+        # pass
+        # self.potentiostat.change_setting(setting_id, option_picked);
+    
+    def _change_control_mode(new_mode):
+        if self._control_mode == new_mode:
+            return
 
     def cleanup(self):
         # Let go of the GPIO pins used by the switch_shift_register
@@ -109,8 +119,8 @@ class Potentiostat:
     
     def get_state(self):
         potentiostat_state = {
-            "n_modules": self.n_modules,
-            "n_channels": self.n_channels,
+            "n_modules": self._n_modules,
+            "n_channels": self._n_channels,
             "channel_switch_states": self._get_channel_switch_states(),
             "channel_output_voltages": self._get_channel_voltages(),
             "channel_output_current": self._get_channel_output_currents(),
@@ -119,10 +129,11 @@ class Potentiostat:
         return potentiostat_state
     
     def on_state_changed(self, listener):
-        self.state_changed_listeners.append(listener)
+        self._state_changed_listeners.append(listener)
 
 
     def _reset_board(suppress_state_change=False):
+        self._change_control_mode("manual")
         self._disconnect_all_electrodes(suppress_state_change=True)
         self._zero_all_voltages(suppress_state_change=True)
         
@@ -136,17 +147,17 @@ class Potentiostat:
     """
     def _zero_all_voltages(self, suppress_state_change=False):
         self.l.log("Setting all channel voltages to zero")
-        indices_to_set = list(range(self.n_channels))
-        voltages_to_set = [0.0] * self.n_channels
+        indices_to_set = list(range(self._n_channels))
+        voltages_to_set = [0.0] * self._n_channels
 
         
-        assert len(channel_voltages) == self.n_channels
+        assert len(_channel_voltages) == self._n_channels
 
-        for chan_i in range(self.n_channels):
-            chan_voltage = channel_voltages[chan_i]
+        for chan_i in range(self._n_channels):
+            chan_voltage = _channel_voltages[chan_i]
 
             self._set_channel_voltage(chan_i, chan_voltage, suppress_state_change=True)
-            self.channel_voltages[chan_i] = chan_voltage
+            self._channel_voltages[chan_i] = chan_voltage
         
         
         if not suppress_state_change:
@@ -158,28 +169,28 @@ class Potentiostat:
     """
     def _disconnect_all_electrodes(self, suppress_state_change=False):
         self.l.log("Disconnecting all electrodes")
-        self._set_all_channel_switches([False] * self.n_channels, suppress_state_change=True)
+        self._set_all_channel_switches([False] * self._n_channels, suppress_state_change=True)
 
         if not suppress_state_change:
             self._state_changed()
     
     def _get_channel_switch_states(self):
-        return self.connected_channels
+        return self._connected_channels
 
     def _get_channel_voltages(self):
-        return self.channel_voltages
+        return self._channel_voltages
     
     def _get_channel_output_currents(self):
         # return self.
         chan_currents = [];
-        for i in range(self.n_channels):
+        for i in range(self._n_channels):
             current_i = self._read_channel_current(i)
             chan_currents.append(current_i)
 
         return chan_currents
 
     def _read_channel_current(self, channel_idx):
-        assert channel_idx >= 0 and channel_idx < self.n_channels
+        assert channel_idx >= 0 and channel_idx < self._n_channels
 
         # Find which ADC of our adc_interfaces this channel belongs to
         adc_idx = channel_idx // CHANNELS_PER_ADC
@@ -211,7 +222,7 @@ class Potentiostat:
     register works.
     """
     def _set_all_channel_switches(self, new_settings, suppress_state_change=False):
-        if len(new_settings) != self.n_channels:
+        if len(new_settings) != self._n_channels:
             raise Exception("_set_all_channel_switches should be called with the new values for all of the channel switches")
         for setting in new_settings:
             if not isinstance(setting, bool):
@@ -219,7 +230,7 @@ class Potentiostat:
         
         self.switch_shift_register.set_switches(new_settings)
 
-        self.connected_channels = list(new_settings) # Update connected_channels to reflect new settings
+        self._connected_channels = list(new_settings) # Update connected_channels to reflect new settings
         
         if not suppress_state_change:
             self._state_changed()
@@ -232,8 +243,8 @@ class Potentiostat:
     """
     def _set_channel_voltage(self, channel_idx: int, voltage: float, suppress_state_change=False):
         self.l.log("Setting channel {channel_idx} voltage to {v}".format(channel_idx=channel_idx, v=voltage))
-        if channel_idx < 0 or channel_idx >= self.n_channels:
-            raise Exception("Invalid channel idx {}. Must be 0 to {}".format(channel, self.n_channels - 1))
+        if channel_idx < 0 or channel_idx >= self._n_channels:
+            raise Exception("Invalid channel idx {}. Must be 0 to {}".format(channel, self._n_channels - 1))
 
         dac_idx = channel_idx // CHANNELS_PER_ADC
         dac_subchannel_idx = channel_idx % CHANNELS_PER_DAC
@@ -248,7 +259,7 @@ class Potentiostat:
     that data has changed
     """
     def _state_changed(self):
-        for l in self.state_changed_listeners:
+        for l in self._state_changed_listeners:
             l(self.get_state())
 
     

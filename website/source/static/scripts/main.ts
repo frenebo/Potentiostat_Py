@@ -1,11 +1,14 @@
 import {
     PotentiostatSettingPanel,
     ChannelInputsPanel,
-    PotstatSettingChangeData,
     ChannelInputsSettingChangeData,
 } from "./setting_panels.js";
 import { LoggingPanel } from "./logging_panel.js";
-import { PotstatLoggingData, PotstatStateData } from "./server_data_types.js";
+import {
+    PotstatLoggingData,
+    PotstatStateData,
+    UserChangedPotstatSettingsData,
+} from "./server_data_types.js";
 
 
 const SERVER_SOCKET_PATH = `/socket_path`;
@@ -82,10 +85,7 @@ class PotentiostatView {
         this.channel_inputs_panel.onUserChange((data) => { this.userChangedChannelInputsPanel(data); });
         
 
-
-
         // Three panels - control panel, input panel, output panel
-
         const panelDiv = document.createElement("div");
         this.appDiv.appendChild(panelDiv);
         panelDiv.classList.add("panels_row");
@@ -129,11 +129,8 @@ class PotentiostatView {
         console.log("Unimplemented userChangedChannelInputsPanel");
     }
 
-    private userChangedSettingsPanel(data: PotstatSettingChangeData): void {
-
-        // this.serverInterface.sendPotstatSettingChangeData()
-        // // @TODO
-        console.log("Unimplemented userChangedSettingsPanel");
+    private userChangedSettingsPanel(data: UserChangedPotstatSettingsData): void {
+        this.serverInterface.sendChangedPotstatSettings(data);
     }
 
     private updatePotentiostatInfo(newPotentiostatState: PotstatStateData): void {
@@ -250,6 +247,10 @@ class ServerInterface {
 
     public requestPotentiostatState(): void {
         this.socketio.emit("request_potentiostat_state", "");
+    }
+
+    public sendChangedPotstatSettings(data: UserChangedPotstatSettingsData): void {
+        this.socketio.emit("client_changed_potstat_settings", data)
     }
 
     public onServerStateChange(listener: (data: PotstatStateData) => void): void {
