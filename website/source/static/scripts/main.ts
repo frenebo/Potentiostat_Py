@@ -5,7 +5,7 @@ import {
     ChannelInputsSettingChangeData,
 } from "./setting_panels.js";
 import { LoggingPanel } from "./logging_panel.js";
-import { PotstatLoggingData } from "./server_data_types.js";
+import { PotstatLoggingData, PotstatStateData } from "./server_data_types.js";
 
 
 const SERVER_SOCKET_PATH = `/socket_path`;
@@ -215,13 +215,6 @@ class PotentiostatView {
     }
 }
 
-type PotstatStateData = {
-    "n_modules": number | null;
-    "n_channels": number | null;
-    "channel_switch_states": Array<boolean | null>;
-    "channel_output_voltages": Array<number | null>;
-    "channel_output_current": Array<number | null>;
-};
 
 
 
