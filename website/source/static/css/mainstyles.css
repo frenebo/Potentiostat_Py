@@ -35,3 +35,7 @@
 .panel_block {
     width: 30%;
 }
+
+.current_reading {
+    color: black;
+}

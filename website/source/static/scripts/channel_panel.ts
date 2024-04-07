@@ -15,14 +15,30 @@ import { PotstatStateData } from "./server_data_types.js"
 //     }
 // }
 
-export type ChannelInputsSettingChangeData = {};
+export type ChannelInputsSettingChangeData = {
+    "channel_idx": number,
+    "changed_setting": {
+        "field": "switch";
+        "switch_state": "on" | "off";
+    } | {
+        "field": "voltage";
+        "voltage_string": string;
+    };
+};
 
 export class ChannelsDataPanel {
     private mainDiv: HTMLDivElement;
     private lastUpdatedDiv: HTMLDivElement;
     private inputsTablePanel: HTMLDivElement;
     private userChangeListeners: Array<(arg: ChannelInputsSettingChangeData) => void>;
+
+    private channelsAreEditable: boolean | null;
     private tableChannelCount: number | null;
+    private inputsTableRows: Array<{
+        "switchSelect": HTMLSelectElement;
+        "voltageDiv": HTMLDivElement;
+        "currentText": HTMLDivElement;
+    }>;
 
     constructor() {
         this.mainDiv = document.createElement("div");
@@ -39,6 +55,9 @@ export class ChannelsDataPanel {
         this.mainDiv.appendChild(this.inputsTablePanel);
 
         this.tableChannelCount = null;
+        this.channelsAreEditable = null;
+
+        this.inputsTableRows = [];
         
         this.userChangeListeners = [];
     }
@@ -51,27 +70,224 @@ export class ChannelsDataPanel {
         this.userChangeListeners.push(listener);
     }
 
-    public updateChannelData(data: PotstatStateData): void {
-        if (data["n_channels"] === null)
+    public updatePanelFromData(data: PotstatStateData): void {
+        const new_n_channels: number | null = data["n_channels"];
+        const new_editable: boolean = data["control_mode"] === "manual";
+
+        if (new_n_channels === null)
         {
             this.inputsTablePanel.innerHTML = "";
+            this.inputsTableRows = [];
             this.tableChannelCount = null;
             return;
         }
 
-        if (data["n_channels"] !== this.tableChannelCount) {
-            this.setupNewChannelPanel(data["n_channels"]);
+        if (new_n_channels !== this.tableChannelCount ||
+            new_editable !== this.channelsAreEditable) {
+            this.constructNewChannelPanel(new_n_channels, new_editable);
+            this.populateChannelPanelFromData(data);
+        } else {
+            // Don't need to rebuild the panel, just refresh the contents
+            this.populateChannelPanelFromData(data);
         }
-
-        // Populate the stuff here
-        throw new Error("unimplemented");
     }
 
-    private setupNewChannelPanel(channelCount: number)
-    {
-        this.inputsTablePanel.innerHTML = "";
+    private populateChannelPanelFromData(data: PotstatStateData): void {
+        if (this.tableChannelCount === null) {
+            throw new Error("No channels in table are currently set up, cannot populate panel");
+        }
+        if (this.tableChannelCount !== data["n_channels"]) {
+            throw new Error("Cannot populate table with data - current tableChannelCount is " + this.tableChannelCount + " but data has " + data["n_channels"] + " channels");
+        }
 
+        for (let chanIdx = 0; chanIdx < this.tableChannelCount; chanIdx++) {
+            const chanData = data["channels"][chanIdx];
+
+            // Switch
+            const newSwitchState = chanData["switch_state"];
+            const switchElement = this.inputsTableRows[chanIdx]["switchSelect"];
+
+            if (newSwitchState === null) {
+                switchElement.value = "__blankoption";
+            } else if (newSwitchState === true) {
+                switchElement.value = "switch_on";
+            } else {
+                switchElement.value = "switch_off";
+            }
+
+            // Voltage
+            const voltageElement = this.inputsTableRows[chanIdx]["voltageDiv"];
+            const newVoltage = chanData["voltage"];
+            if (newVoltage === null) {
+                voltageElement.innerHTML = "?";
+            } else {
+                voltageElement.innerHTML = newVoltage.toString();
+            }
+
+            // Current
+            const currentElement = this.inputsTableRows[chanIdx]["currentText"];
+            const newCurrent = chanData["current"];
+            if (newCurrent === null) {
+                currentElement.innerHTML = "?";
+            } else {
+                currentElement.innerHTML = newCurrent.toString();
+            }
+        }
+    }
+
+    private static createSwitchSelect(editable: boolean): HTMLSelectElement
+    {
+        const switchSelector = document.createElement("select");
+        
+        const defaultBlankOption = new Option("--", "__blankoption");
+        switchSelector.appendChild(defaultBlankOption);
+        defaultBlankOption.selected = true;
+        defaultBlankOption.hidden = true;
+        defaultBlankOption.disabled = true;
+
+        // const option_elements = 
+        const on_option = new Option("On", "switch_on");
+        // if ()
+        switchSelector.appendChild(on_option);
+        const off_option = new Option("Off", "switch_off");
+        switchSelector.appendChild(off_option);
+
+        if (!editable) {
+            on_option.disabled = true;
+            off_option.disabled = true;
+        }
+
+        return switchSelector;
+    }
+
+    private static createVoltageInputBox(): HTMLDivElement {
+        const voltageInput = document.createElement("input");
+
+        return voltageInput;
+    }
+
+    private static createCurrentReadingBox(): HTMLDivElement {
+        const box = document.createElement("div");
+        box.classList.add("current_reading");
+
+        return box
+    }
+
+    private callChangedListeners(dat: ChannelInputsSettingChangeData) {
+        for (const l of this.userChangeListeners) {
+            l(dat);
+        }
+    }
+
+    private userEditedChannel(channelIdx: number, field: "switch" | "voltage", newValue: string)
+    {
+        if (field == "switch") {
+            let datVal: "on" | "off";
+
+            if (newValue === "switch_on") {
+                datVal = "on";
+            } else if (newValue === "switch_off") {
+                datVal = "off";
+            } else {
+                throw Error("invalid switch value " + newValue);
+            }
+
+            // if (newValue !== "switch_on")
+            this.callChangedListeners({
+                "channel_idx": channelIdx,
+                "changed_setting": {
+                    "field": "switch",
+                    "switch_state": datVal,
+                }
+            });
+        } else if (field === "voltage") {
+            this.callChangedListeners({
+                "channel_idx": channelIdx,
+                "changed_setting": {
+                    "field": "voltage",
+                    "voltage_string": newValue,
+                }
+            });
+        } else {
+            throw Error("Invalid field to edit, '" + field + "'");
+        }
+    }
+
+    private constructNewChannelPanel(channelCount: number, editable: boolean)
+    {
         this.tableChannelCount = channelCount;
+        this.channelsAreEditable = editable;
+
+        this.inputsTablePanel.innerHTML = "";
+        this.inputsTableRows = [];
+
+        const channelTable = document.createElement("table");
+        this.inputsTablePanel.appendChild(channelTable);
+
+        // Header
+        const headerTr = channelTable.insertRow();
+        headerTr.insertCell().appendChild(document.createTextNode("Channel #"));
+        headerTr.insertCell().appendChild(document.createTextNode("Switch state"));
+        headerTr.insertCell().appendChild(document.createTextNode("Input Voltage"));
+        headerTr.insertCell().appendChild(document.createTextNode("Measured ADC Voltage"));
+
+        for (let chanIdx = 0; chanIdx < channelCount; chanIdx++) {
+            // const chan
+            const chanRow = channelTable.insertRow();
+            chanRow.insertCell().appendChild(document.createTextNode(chanIdx.toString()));
+
+            // Selector for the switch state
+            const switchSelector = ChannelsDataPanel.createSwitchSelect(editable);
+            chanRow.insertCell().appendChild(switchSelector);
+            
+
+            switchSelector.addEventListener("change", (ev) => {
+                if (ev.target === null) return;
+
+                if (!editable) return; // Shouldn't be getting to this point anyways, but just in case...
+
+                const userPickedOption: string = (ev.target as HTMLSelectElement).value;
+
+                // Wait until the server confirms the change before updating value
+                this.userEditedChannel(chanIdx, "switch", userPickedOption);
+                // this.userChange(setting_id, userPickedOption);
+
+                switchSelector.value = "__blankoption";
+            });
+
+
+            const voltageCell = chanRow.insertCell();
+            
+            const voltageInputBox = ChannelsDataPanel.createVoltageInputBox();
+            voltageCell.appendChild(voltageInputBox);
+            
+            if (editable) {
+                const voltageEditButton = document.createElement("button");
+                voltageCell.appendChild(voltageEditButton);
+                voltageEditButton.onclick = (ev) => {
+                    const newVal = prompt("Enter new voltage");
+                    if (newVal === null) {
+                        alert("No value entered");
+                        return;
+                    }
+                    
+                    this.userEditedChannel(chanIdx, "voltage", newVal);
+                }
+            }
+
+
+
+            // throw new Error("Unimplemented change/return listeners on input box")
+
+            const currentReadingBox = ChannelsDataPanel.createCurrentReadingBox();
+            chanRow.insertCell().appendChild(currentReadingBox);
+
+            this.inputsTableRows.push({
+                "switchSelect": switchSelector,
+                "voltageDiv": voltageInputBox,
+                "currentText": currentReadingBox,
+            });
+        }
     }
 }
 
