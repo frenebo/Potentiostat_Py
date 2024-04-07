@@ -22,6 +22,7 @@ export class ChannelsDataPanel {
     private lastUpdatedDiv: HTMLDivElement;
     private inputsTablePanel: HTMLDivElement;
     private userChangeListeners: Array<(arg: ChannelInputsSettingChangeData) => void>;
+    private tableChannelCount: number | null;
 
     constructor() {
         this.mainDiv = document.createElement("div");
@@ -36,6 +37,8 @@ export class ChannelsDataPanel {
         this.inputsTablePanel = document.createElement("div");
         this.inputsTablePanel.classList.add('input_table_panel');
         this.mainDiv.appendChild(this.inputsTablePanel);
+
+        this.tableChannelCount = null;
         
         this.userChangeListeners = [];
     }
@@ -49,7 +52,26 @@ export class ChannelsDataPanel {
     }
 
     public updateChannelData(data: PotstatStateData): void {
+        if (data["n_channels"] === null)
+        {
+            this.inputsTablePanel.innerHTML = "";
+            this.tableChannelCount = null;
+            return;
+        }
 
+        if (data["n_channels"] !== this.tableChannelCount) {
+            this.setupNewChannelPanel(data["n_channels"]);
+        }
+
+        // Populate the stuff here
+        throw new Error("unimplemented");
+    }
+
+    private setupNewChannelPanel(channelCount: number)
+    {
+        this.inputsTablePanel.innerHTML = "";
+
+        this.tableChannelCount = channelCount;
     }
 }
 
