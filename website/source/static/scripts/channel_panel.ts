@@ -160,8 +160,8 @@ export class ChannelsDataPanel {
         return switchSelector;
     }
 
-    private static createVoltageInputBox(): HTMLDivElement {
-        const voltageInput = document.createElement("input");
+    private static createVoltageDivBox(): HTMLDivElement {
+        const voltageInput = document.createElement("div");
 
         return voltageInput;
     }
@@ -215,6 +215,7 @@ export class ChannelsDataPanel {
 
     private constructNewChannelPanel(channelCount: number, editable: boolean)
     {
+        console.log("Constructing new panel");
         this.tableChannelCount = channelCount;
         this.channelsAreEditable = editable;
 
@@ -258,11 +259,12 @@ export class ChannelsDataPanel {
 
             const voltageCell = chanRow.insertCell();
             
-            const voltageInputBox = ChannelsDataPanel.createVoltageInputBox();
-            voltageCell.appendChild(voltageInputBox);
+            const voltageDivBox = ChannelsDataPanel.createVoltageDivBox();
+            voltageCell.appendChild(voltageDivBox);
             
             if (editable) {
                 const voltageEditButton = document.createElement("button");
+                voltageEditButton.textContent = "edit";
                 voltageCell.appendChild(voltageEditButton);
                 voltageEditButton.onclick = (ev) => {
                     const newVal = prompt("Enter new voltage");
@@ -284,7 +286,7 @@ export class ChannelsDataPanel {
 
             this.inputsTableRows.push({
                 "switchSelect": switchSelector,
-                "voltageDiv": voltageInputBox,
+                "voltageDiv": voltageDivBox,
                 "currentText": currentReadingBox,
             });
         }

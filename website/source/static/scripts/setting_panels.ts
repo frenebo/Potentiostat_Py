@@ -128,35 +128,35 @@ export class PotentiostatSettingPanel {
     }
 }
 
-export type ChannelInputsSettingChangeData = {};
-export class ChannelsDataPanel {
-    private mainDiv: HTMLDivElement;
-    private lastUpdatedDiv: HTMLDivElement;
-    private inputsTablePanel: HTMLDivElement;
-    private userChangeListeners: Array<(arg: ChannelInputsSettingChangeData) => void>;
+// export type ChannelInputsSettingChangeData = {};
+// export class ChannelsDataPanel {
+//     private mainDiv: HTMLDivElement;
+//     private lastUpdatedDiv: HTMLDivElement;
+//     private inputsTablePanel: HTMLDivElement;
+//     private userChangeListeners: Array<(arg: ChannelInputsSettingChangeData) => void>;
 
-    constructor() {
-        this.mainDiv = document.createElement("div");
+//     constructor() {
+//         this.mainDiv = document.createElement("div");
 
-        const titleBar = document.createElement("div");
-        titleBar.innerHTML = "Inputs (Volts)";
-        this.mainDiv.appendChild(titleBar);
+//         const titleBar = document.createElement("div");
+//         titleBar.innerHTML = "Inputs (Volts)";
+//         this.mainDiv.appendChild(titleBar);
 
-        this.lastUpdatedDiv = document.createElement("div");
-        this.mainDiv.appendChild(this.lastUpdatedDiv);
+//         this.lastUpdatedDiv = document.createElement("div");
+//         this.mainDiv.appendChild(this.lastUpdatedDiv);
 
-        this.inputsTablePanel = document.createElement("div");
-        this.inputsTablePanel.classList.add('input_table_panel');
-        this.mainDiv.appendChild(this.inputsTablePanel);
+//         this.inputsTablePanel = document.createElement("div");
+//         this.inputsTablePanel.classList.add('input_table_panel');
+//         this.mainDiv.appendChild(this.inputsTablePanel);
         
-        this.userChangeListeners = [];
-    }
+//         this.userChangeListeners = [];
+//     }
 
-    public getHtmlElement(): HTMLDivElement {
-        return this.mainDiv;
-    }
+//     public getHtmlElement(): HTMLDivElement {
+//         return this.mainDiv;
+//     }
 
-    public onUserChange(listener: (data: ChannelInputsSettingChangeData) => void): void {
-        this.userChangeListeners.push(listener);
-    }
-}
+//     public onUserChange(listener: (data: ChannelInputsSettingChangeData) => void): void {
+//         this.userChangeListeners.push(listener);
+//     }
+// }

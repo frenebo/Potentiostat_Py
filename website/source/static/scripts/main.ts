@@ -1,8 +1,9 @@
 import {
     PotentiostatSettingPanel,
-    ChannelsDataPanel,
-    ChannelInputsSettingChangeData,
+    // ChannelsDataPanel,
+    // ChannelInputsSettingChangeData,
 } from "./setting_panels.js";
+import { ChannelsDataPanel, ChannelInputsSettingChangeData } from "./channel_panel.js";
 import { LoggingPanel } from "./logging_panel.js";
 import {
     PotstatLoggingData,
@@ -83,6 +84,7 @@ class PotentiostatView {
 
         this.potstat_setting_panel.onUserChange((data) => { this.userChangedSettingsPanel(data); });
         this.channels_data_panel.onUserChange((data) => { this.userChangedChannelInputsPanel(data); });
+        // this.channeld_dat
         
 
         // Three panels - control panel, channel data panel, output panel
@@ -137,6 +139,7 @@ class PotentiostatView {
         console.log(newPotentiostatState);
 
         this.potstat_setting_panel.updateSettingValue("control_mode", newPotentiostatState["control_mode"])
+        this.channels_data_panel.updatePanelFromData(newPotentiostatState);
         // this.channels_data_panel.updateChannelData(newPotentiostatState[])
     }
 
