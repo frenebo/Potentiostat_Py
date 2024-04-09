@@ -162,6 +162,8 @@ export class ChannelsDataPanel {
 
     private static createVoltageDivBox(): HTMLDivElement {
         const voltageInput = document.createElement("div");
+        // voltageInput.
+        voltageInput.classList.add("chan_voltage_cell_content");
 
         return voltageInput;
     }
@@ -258,6 +260,7 @@ export class ChannelsDataPanel {
 
 
             const voltageCell = chanRow.insertCell();
+            voltageCell.classList.add("chan_voltage_cell_content");
             
             const voltageDivBox = ChannelsDataPanel.createVoltageDivBox();
             voltageCell.appendChild(voltageDivBox);

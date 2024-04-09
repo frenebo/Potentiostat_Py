@@ -104,32 +104,11 @@ class Potentiostat:
             self._change_control_mode(option_picked)
         else:
             self.l.error("Cannot change setting '{setting}' to '{pick}' - unknown setting '{setting}'".format(setting=setting_id, pick=option_picked))
-        # pass
-        # self.potentiostat.change_setting(setting_id, option_picked);
-    
-    def _change_control_mode(self, new_mode, suppress_state_change=False):
-        if self._control_mode == new_mode:
-            return
-        
-        if new_mode == "manual":
-            self._control_mode = "manual"
-            # self.l.log("unimplemented manual mode")
-        elif new_mode == "cyclic":
-            # self._control_mode = "cyclic"
-            self.l.log("unimplemented cyclic mode")
-            self._control_mode = "manual"
-        else:
-            self.l.error("Unknown control mode '{new_mode}'".format(new_mode=new_mode))
-            return
-        
-        if not suppress_state_change:
-            self._state_changed()
+
 
     def cleanup(self):
         # Let go of the GPIO pins used by the switch_shift_register
         self.switch_shift_register.cleanup()
-    
-    # Functions to read state
     
     def get_state(self):
         channel_data = []
@@ -154,9 +133,30 @@ class Potentiostat:
 
         return potentiostat_state
     
+    def check_if_channels_editable(self):
+        return self._control_mode == "manual"
+    
     def on_state_changed(self, listener):
         self._state_changed_listeners.append(listener)
+    
+    def set_channel_voltage_manually(self, channel_idx, new_voltage):
+        if not self.check_if_channels_editable():
+            raise Exception("Cannot manually set channel voltages right now, control mode is {} ".format(self._control_mode))
+        
+        self._set_channel_voltage(channel_idx, new_voltage)
+    
+    def set_channel_switch_manually(self, channel_idx, new_switch_state):
+        if not self.check_if_channels_editable():
+            raise Exception("Cannot manually set channel switches right now, control mode is {} ".format(self._control_mode))
+        if new_switch_state not in [True,False]:
+            raise Exception("Invalid new switch state {} - must be True or False".format(new_switch_state))
+        
+        # Update the switches to be the same, except the one at channel_idx is changed to new_switch_state
+        all_switches_states = list(self._connected_channels) # copy previous switch states
+        all_switches_states[channel_idx] = new_switch_state
 
+        self._set_all_channel_switches(all_switches_states)
+    
 
     def _reset_board(self, suppress_state_change=False):
         self._change_control_mode("manual", suppress_state_change=True)
@@ -165,6 +165,24 @@ class Potentiostat:
         
         #@TODO reset the settings of all the ADCs too
 
+        if not suppress_state_change:
+            self._state_changed()
+    
+    def _change_control_mode(self, new_mode, suppress_state_change=False):
+        if self._control_mode == new_mode:
+            return
+        
+        if new_mode == "manual":
+            self._control_mode = "manual"
+            # self.l.log("unimplemented manual mode")
+        elif new_mode == "cyclic":
+            # self._control_mode = "cyclic"
+            self.l.error("unimplemented cyclic mode")
+            self._control_mode = "manual"
+        else:
+            self.l.error("Unknown control mode '{new_mode}'".format(new_mode=new_mode))
+            return
+        
         if not suppress_state_change:
             self._state_changed()
     
@@ -273,6 +291,7 @@ class Potentiostat:
         dac_subchannel_idx = channel_idx % CHANNELS_PER_DAC
 
         self.dac_interfaces[dac_idx].set_voltage(dac_subchannel_idx, voltage)
+        self._channel_voltages[channel_idx] = voltage
         if not suppress_state_change:
             self._state_changed()
 

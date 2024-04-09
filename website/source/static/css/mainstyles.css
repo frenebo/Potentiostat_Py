@@ -39,3 +39,16 @@
 .current_reading {
     color: black;
 }
+
+.chan_voltage_cell_content {
+    display:inline-block;
+    margin-right: 5px;
+    white-space: nowrap;
+}
+
+.logging_panel
+{
+    height:100px;
+    overflow-x:scroll;
+    overflow-y:scroll;
+}

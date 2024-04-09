@@ -127,7 +127,8 @@ class PotentiostatView {
     }
 
     private userChangedChannelInputsPanel(data: ChannelInputsSettingChangeData): void {
-        console.log("Unimplemented userChangedChannelInputsPanel");
+        // console.log("Unimplemented userChangedChannelInputsPanel");
+        this.serverInterface.sendUserEditedChannelValues(data);
     }
 
     private userChangedSettingsPanel(data: UserChangedPotstatSettingsData): void {
@@ -188,7 +189,11 @@ class ServerInterface {
     }
 
     public sendChangedPotstatSettings(data: UserChangedPotstatSettingsData): void {
-        this.socketio.emit("client_changed_potstat_settings", data)
+        this.socketio.emit("client_changed_potstat_settings", data);
+    }
+
+    public sendUserEditedChannelValues(data: ChannelInputsSettingChangeData): void {
+        this.socketio.emit("client_edited_channel_values", data);
     }
 
     public onServerStateChange(listener: (data: PotstatStateData) => void): void {

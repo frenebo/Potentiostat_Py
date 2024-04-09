@@ -63,9 +63,59 @@ class PotentiostatNamespace(Namespace):
         # print(req_data)
         setting_id = req_data["setting_id"];
         option_picked = req_data["option_picked"];
-        time.sleep(1)
+        # time.sleep(1)
 
         self.potentiostat.change_setting(setting_id, option_picked);
+    
+    def on_client_edited_channel_values(self, req_data):
+        # print(req_data)
+        if not self.potentiostat.check_if_channels_editable():
+            self.send_out_potentiostat_logging({"lines": [{
+                "type": "warning",
+                "text": "Potentiostat channel values are not directly editable right now - could not edit.",
+                "timestamp_seconds": time.time(),
+            }]})
+            self.send_out_potentiostat_state(self.potentiostat.get_state())
+            
+            return
+        
+
+        channel_idx = req_data["channel_idx"]
+
+        if req_data["changed_setting"]["field"] == "switch":
+            new_switchstate_string = req_data["changed_setting"]["switch_state"]
+            # if new_swit
+            new_switchstate_bool=None
+            if new_switchstate_string == "on":
+                new_switchstate_bool = True
+            elif new_switchstate_string == "off":
+                new_switchstate_bool = False
+            else:
+                self.send_out_potentiostat_logging({"lines": [{"type": "error",
+                    "text": "Can't set switch {channel_idx} to '{statestr}' - must be either 'on' or 'off'".format(channel_idx=channel_idx, statestr=new_switchstate_string),
+                    "timestamp_seconds": time.time(),
+                }]})
+            
+            self.potentiostat.set_channel_switch_manually(channel_idx, new_switchstate_bool)
+        elif req_data["changed_setting"]["field"] == "voltage":
+            new_voltage_string = req_data["changed_setting"]["voltage_string"]
+            try:
+                new_voltage_float = float(new_voltage_string)
+            except Exception as e:
+                self.send_out_potentiostat_logging({"lines": [{"type": "error",
+                    "text": "Invalid voltage '{voltage_string}' for channel {channel_idx} - could not parse as float".format(voltage_string=new_voltage_string, channel_idx=channel_idx),
+                    "timestamp_seconds": time.time()
+                }]})
+
+                return
+            
+            self.potentiostat.set_channel_voltage_manually(channel_idx, new_voltage_float)
+        else:
+            self.send_out_potentiostat_logging({"lines": [{"type": "error",
+                "text": "Unknown channel field '{}' - could not set.'".format(req_data["changed_setting"]["field"]),
+                "timestamp_seconds": time.time(),
+            }]})
+            return
     
     def send_out_potentiostat_state(self, new_state):
         socketio.emit("potentiostat_state", new_state, namespace=SOCKET_NAMESPACE_STR)
