@@ -17,12 +17,26 @@ export class LoggingPanel {
     }
 
     private addLine(logtype: string, text: string, timestamp_seconds: number) {
-        new Date(timestamp_seconds);
+        const logtimestamp = new Date(timestamp_seconds * 1000);
         const lineDiv = document.createElement("div");
-        lineDiv.appendChild(document.createTextNode(text));
+        const timeString = logtimestamp.toUTCString()+ " ";
+
+        const timeDiv = document.createElement("div");
+        lineDiv.appendChild(timeDiv);
+        timeDiv.appendChild(document.createTextNode(timeString));
+        timeDiv.classList.add("logline_datetime");
+
+        const logTextDiv = document.createElement("div");
+        lineDiv.appendChild(logTextDiv);
+        logTextDiv.appendChild(document.createTextNode(text));
+        logTextDiv.classList.add("logline_text");
+        // lineDiv.appendChild(document.createTextNode())
+        // lineDiv.appendChild(document.createTextNode(text));
         if (logtype !== "log") {
-            lineDiv.style.color = "red";
-            lineDiv.style.fontWeight = "bold";
+            logTextDiv.classList.add("log_error");
+            timeDiv.classList.add("log_error");
+            // logTextDiv.style.color = "red";
+            // logTextDiv.style.fontWeight = "bold";
         }
         if (this.logsDiv.children.length == 0) {
             this.logsDiv.appendChild(lineDiv);

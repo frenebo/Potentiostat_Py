@@ -21,11 +21,11 @@ export class PotentiostatSettingPanel {
         this.mainDiv = document.createElement("div");
 
         const titleBar = document.createElement("div");
-        titleBar.innerHTML = "Settings";
+        titleBar.innerHTML = "Potentiostat Settings";
         this.mainDiv.appendChild(titleBar);
 
         this.settingsTablePanel = document.createElement("div");
-        this.settingsTablePanel.classList.add('potstat_settings_table_panel');
+        this.settingsTablePanel.classList.add('settings_table_panel');
         this.mainDiv.appendChild(this.settingsTablePanel);
 
         this.settingsTbl = document.createElement("table");
@@ -127,36 +127,3 @@ export class PotentiostatSettingPanel {
         }
     }
 }
-
-// export type ChannelInputsSettingChangeData = {};
-// export class ChannelsDataPanel {
-//     private mainDiv: HTMLDivElement;
-//     private lastUpdatedDiv: HTMLDivElement;
-//     private inputsTablePanel: HTMLDivElement;
-//     private userChangeListeners: Array<(arg: ChannelInputsSettingChangeData) => void>;
-
-//     constructor() {
-//         this.mainDiv = document.createElement("div");
-
-//         const titleBar = document.createElement("div");
-//         titleBar.innerHTML = "Inputs (Volts)";
-//         this.mainDiv.appendChild(titleBar);
-
-//         this.lastUpdatedDiv = document.createElement("div");
-//         this.mainDiv.appendChild(this.lastUpdatedDiv);
-
-//         this.inputsTablePanel = document.createElement("div");
-//         this.inputsTablePanel.classList.add('input_table_panel');
-//         this.mainDiv.appendChild(this.inputsTablePanel);
-        
-//         this.userChangeListeners = [];
-//     }
-
-//     public getHtmlElement(): HTMLDivElement {
-//         return this.mainDiv;
-//     }
-
-//     public onUserChange(listener: (data: ChannelInputsSettingChangeData) => void): void {
-//         this.userChangeListeners.push(listener);
-//     }
-// }

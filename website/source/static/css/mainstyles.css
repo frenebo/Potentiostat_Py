@@ -1,14 +1,7 @@
-.input_table_panel {
-    max-height: 150px;
-    overflow: auto;
-}
 
-.output_table_panel {
-    max-height: 150px;
-    overflow: auto;
-}
 
-.potstat_settings_table_panel {
+
+.settings_table_panel {
     max-height: 150px;
     overflow: auto;
     max-width: 400px;
@@ -25,12 +18,18 @@
     color: black;
 }
 
+.lastupdated_line {
+    font-style: italic;
+    color:rgb(175, 175, 175);
+
+}
+
 
 .panels_row {
     width: 100%;
     display: flex;
     flex-direction: row;
-    justify-content: center;
+    justify-content: left;
 }
 .panel_block {
     width: 30%;
@@ -52,3 +51,30 @@
     overflow-x:scroll;
     overflow-y:scroll;
 }
+
+.logline_datetime {
+    display:inline-block;
+    margin-right: 5px;
+    white-space: nowrap;
+    color:rgb(175, 175, 175);
+    font-family: monospace;
+}
+.logline_datetime.log_error {
+    color: black;
+    font-weight: bold;
+    /* background-color: rgb(255, 255, 99); */
+}
+
+.logline_text {
+    display:inline-block;
+    white-space: nowrap;
+    font-family: monospace;
+    color: black;
+}
+.logline_text.log_error {
+    color: red;
+    font-weight: bold;
+    background-color: rgb(255, 255, 99);
+}
+
+/* .logging_line  */

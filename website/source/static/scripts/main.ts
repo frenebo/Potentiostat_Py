@@ -1,47 +1,16 @@
-import {
-    PotentiostatSettingPanel,
-    // ChannelsDataPanel,
-    // ChannelInputsSettingChangeData,
-} from "./setting_panels.js";
-import { ChannelsDataPanel, ChannelInputsSettingChangeData } from "./channel_panel.js";
+import { PotentiostatSettingPanel } from "./setting_panels.js";
+import { ChannelsDataPanel  } from "./channel_panel.js";
 import { LoggingPanel } from "./logging_panel.js";
 import {
     PotstatLoggingData,
     PotstatStateData,
     UserChangedPotstatSettingsData,
+    ChannelInputsSettingChangeData,
 } from "./server_data_types.js";
 
 
 const SERVER_SOCKET_PATH = `/socket_path`;
 const VERSION = "0.1";
-
-
-
-class ChannelOutputsPanel {
-    private mainDiv: HTMLDivElement;
-    private lastUpdatedDiv: HTMLDivElement;
-    private inputsTablePanel: HTMLDivElement;
-
-    constructor() {
-        this.mainDiv = document.createElement("div");
-
-        const titleBar = document.createElement("div");
-        titleBar.innerHTML = "Outputs (current)";
-        this.mainDiv.appendChild(titleBar);
-
-        this.lastUpdatedDiv = document.createElement("div");
-        this.mainDiv.appendChild(this.lastUpdatedDiv);
-
-        this.inputsTablePanel = document.createElement("div");
-        this.inputsTablePanel.classList.add('output_table_panel');
-        this.mainDiv.appendChild(this.inputsTablePanel);
-    }
-
-    public getHtmlElement(): HTMLDivElement {
-        return this.mainDiv;
-    }
-}
-
 
 
 class PotentiostatView {
@@ -50,7 +19,6 @@ class PotentiostatView {
     private serverInterface: ServerInterface;
     private potstat_setting_panel: PotentiostatSettingPanel;
     private channels_data_panel: ChannelsDataPanel;
-    private channel_outputs_panel: ChannelOutputsPanel;
     private loggingPanel: LoggingPanel;
 
     constructor(appDiv: HTMLDivElement, serverInterface: ServerInterface) {
@@ -76,15 +44,13 @@ class PotentiostatView {
         resetButton.onclick = () => { this.serverInterface.requestPotentiostatReset(); };
 
 
-        // Set up the control, inputs, outputs channels
+        // Set up the control panels
         this.potstat_setting_panel = new PotentiostatSettingPanel();
         this.channels_data_panel = new ChannelsDataPanel();
-        this.channel_outputs_panel = new ChannelOutputsPanel();
         this.loggingPanel = new LoggingPanel();
 
         this.potstat_setting_panel.onUserChange((data) => { this.userChangedSettingsPanel(data); });
         this.channels_data_panel.onUserChange((data) => { this.userChangedChannelInputsPanel(data); });
-        // this.channeld_dat
         
 
         // Three panels - control panel, channel data panel, output panel
@@ -106,11 +72,6 @@ class PotentiostatView {
         channelsDataPanelDiv.classList.add("panel_block");        
         channelsDataPanelDiv.appendChild(this.channels_data_panel.getHtmlElement());
 
-        // Outputs panel
-        const outputPanelDiv = document.createElement("div");
-        panelDiv.appendChild(outputPanelDiv);
-        outputPanelDiv.classList.add("panel_block");
-        outputPanelDiv.appendChild(this.channel_outputs_panel.getHtmlElement());
 
         this.basicPanel = document.createElement("div");
         this.appDiv.appendChild(this.basicPanel);
@@ -119,7 +80,7 @@ class PotentiostatView {
         // Console area
         const loggingDiv = document.createElement("div");
         this.appDiv.appendChild(loggingDiv);
-        loggingDiv.classList.add("panel_block");
+        // loggingDiv.classList.add("panel_block");
         loggingDiv.appendChild(this.loggingPanel.getHtmlElement());
 
 
@@ -139,7 +100,7 @@ class PotentiostatView {
         console.log("Received new state from server:");
         console.log(newPotentiostatState);
 
-        this.potstat_setting_panel.updateSettingValue("control_mode", newPotentiostatState["control_mode"])
+        this.potstat_setting_panel.updateSettingValue("control_mode", newPotentiostatState["control_program"]["type"])
         this.channels_data_panel.updatePanelFromData(newPotentiostatState);
         // this.channels_data_panel.updateChannelData(newPotentiostatState[])
     }

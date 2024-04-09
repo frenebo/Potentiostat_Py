@@ -4,6 +4,7 @@ from flask_socketio import SocketIO, send, Namespace
 import sys
 import os
 import time
+import threading
 
 from potentiostatpy.potentiostat import Potentiostat
 from potentiostatpy.logger import CallbackLogger
@@ -57,7 +58,7 @@ class PotentiostatNamespace(Namespace):
         callback_logger.on_error(socket_error_func)
     
     def on_request_potentiostat_state(self, req_data):
-        self.send_out_potentiostat_state(self.potentiostat.get_state())
+        self.send_out_potentiostat_state()
     
     def on_client_changed_potstat_settings(self, req_data):
         # print(req_data)
@@ -65,7 +66,7 @@ class PotentiostatNamespace(Namespace):
         option_picked = req_data["option_picked"];
         # time.sleep(1)
 
-        self.potentiostat.change_setting(setting_id, option_picked);
+        self.potentiostat.change_potentiostat_setting(setting_id, option_picked);
     
     def on_client_edited_channel_values(self, req_data):
         # print(req_data)
@@ -75,7 +76,7 @@ class PotentiostatNamespace(Namespace):
                 "text": "Potentiostat channel values are not directly editable right now - could not edit.",
                 "timestamp_seconds": time.time(),
             }]})
-            self.send_out_potentiostat_state(self.potentiostat.get_state())
+            self.send_out_potentiostat_state()
             
             return
         
@@ -117,8 +118,8 @@ class PotentiostatNamespace(Namespace):
             }]})
             return
     
-    def send_out_potentiostat_state(self, new_state):
-        socketio.emit("potentiostat_state", new_state, namespace=SOCKET_NAMESPACE_STR)
+    def send_out_potentiostat_state(self):
+        socketio.emit("potentiostat_state", self.potentiostat.get_state(), namespace=SOCKET_NAMESPACE_STR)
     
     def send_out_potentiostat_logging(self, logging_data):
         print("sending out potentiostat logging ")
@@ -129,6 +130,12 @@ potstat_namespace = PotentiostatNamespace(SOCKET_NAMESPACE_STR)
 socketio.on_namespace(potstat_namespace)
 
 
+
+def app_emit_thread():
+    while True:
+        potstat_namespace.send_out_potentiostat_state()
+        time.sleep(1)
+        # print("emitte")
 
 if __name__ == '__main__':
     using_dummy_hardware = False
@@ -145,6 +152,7 @@ if __name__ == '__main__':
         potentiostat = Potentiostat(n_modules=1, use_dummy_hardware=using_dummy_hardware, logger=potstat_logger)
         potstat_namespace.connect_callback_logger(potstat_logger)
         potstat_namespace.set_potentiostat(potentiostat)
+        threading.Thread(target=app_emit_thread, daemon=True).start()
         app.run(debug=True, host='0.0.0.0', port=5000, use_reloader=False)
         potentiostat.cleanup()
     except:

@@ -29,7 +29,7 @@ export type ChannelInputsSettingChangeData = {
 export class ChannelsDataPanel {
     private mainDiv: HTMLDivElement;
     private lastUpdatedDiv: HTMLDivElement;
-    private inputsTablePanel: HTMLDivElement;
+    private channelTablePanel: HTMLDivElement;
     private userChangeListeners: Array<(arg: ChannelInputsSettingChangeData) => void>;
 
     private channelsAreEditable: boolean | null;
@@ -44,15 +44,16 @@ export class ChannelsDataPanel {
         this.mainDiv = document.createElement("div");
 
         const titleBar = document.createElement("div");
-        titleBar.innerHTML = "Inputs (Volts)";
+        titleBar.innerHTML = "Channel Settings";
         this.mainDiv.appendChild(titleBar);
 
         this.lastUpdatedDiv = document.createElement("div");
+        this.lastUpdatedDiv.classList.add("lastupdated_line")
         this.mainDiv.appendChild(this.lastUpdatedDiv);
 
-        this.inputsTablePanel = document.createElement("div");
-        this.inputsTablePanel.classList.add('input_table_panel');
-        this.mainDiv.appendChild(this.inputsTablePanel);
+        this.channelTablePanel = document.createElement("div");
+        this.channelTablePanel.classList.add("settings_table_panel")
+        this.mainDiv.appendChild(this.channelTablePanel);
 
         this.tableChannelCount = null;
         this.channelsAreEditable = null;
@@ -72,11 +73,11 @@ export class ChannelsDataPanel {
 
     public updatePanelFromData(data: PotstatStateData): void {
         const new_n_channels: number | null = data["n_channels"];
-        const new_editable: boolean = data["control_mode"] === "manual";
+        const new_editable: boolean = data["control_program"]["type"] === "manual";
 
         if (new_n_channels === null)
         {
-            this.inputsTablePanel.innerHTML = "";
+            this.channelTablePanel.innerHTML = "";
             this.inputsTableRows = [];
             this.tableChannelCount = null;
             return;
@@ -90,6 +91,14 @@ export class ChannelsDataPanel {
             // Don't need to rebuild the panel, just refresh the contents
             this.populateChannelPanelFromData(data);
         }
+
+        this.updateTimestamp(data["timestamp_seconds"]);
+    }
+
+    private updateTimestamp(timestamp_seconds: number)
+    {
+        const dateObj = new Date(timestamp_seconds * 1000);
+        this.lastUpdatedDiv.textContent = "Last updated: " + dateObj.toUTCString();
     }
 
     private populateChannelPanelFromData(data: PotstatStateData): void {
@@ -221,11 +230,11 @@ export class ChannelsDataPanel {
         this.tableChannelCount = channelCount;
         this.channelsAreEditable = editable;
 
-        this.inputsTablePanel.innerHTML = "";
+        this.channelTablePanel.innerHTML = "";
         this.inputsTableRows = [];
 
         const channelTable = document.createElement("table");
-        this.inputsTablePanel.appendChild(channelTable);
+        this.channelTablePanel.appendChild(channelTable);
 
         // Header
         const headerTr = channelTable.insertRow();

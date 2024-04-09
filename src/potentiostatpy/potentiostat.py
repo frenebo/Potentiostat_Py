@@ -1,3 +1,5 @@
+import time
+
 from .logger import PrintLogger
 
 # I2C multiplexer on main board
@@ -99,7 +101,7 @@ class Potentiostat:
         
         self._reset_board()
 
-    def change_setting(self, setting_id, option_picked):
+    def change_potentiostat_setting(self, setting_id, option_picked):
         if setting_id == "control_mode":
             self._change_control_mode(option_picked)
         else:
@@ -124,14 +126,24 @@ class Potentiostat:
                 "current": output_currents[i],
             })
 
+        control_program_summary = self._make_control_program_summary()
+
         potentiostat_state = {
             "n_modules": self._n_modules,
             "n_channels": self._n_channels,
-            "control_mode": self._control_mode,
+            "control_program": control_program_summary,
+            # "control_mode": self._control_mode,
+            "timestamp_seconds": time.time(),
             "channels": channel_data,
         }
 
         return potentiostat_state
+    
+    def _make_control_program_summary(self):
+        if self._control_mode == "manual":
+            return {"type":"manual"}
+        elif self._control_mode == "cyclic":
+            return {"type":"cyclic"}
     
     def check_if_channels_editable(self):
         return self._control_mode == "manual"
@@ -177,8 +189,8 @@ class Potentiostat:
             # self.l.log("unimplemented manual mode")
         elif new_mode == "cyclic":
             # self._control_mode = "cyclic"
-            self.l.error("unimplemented cyclic mode")
-            self._control_mode = "manual"
+            # self.l.error("unimplemented cyclic mode")
+            self._control_mode = "cyclic"
         else:
             self.l.error("Unknown control mode '{new_mode}'".format(new_mode=new_mode))
             return
@@ -248,14 +260,7 @@ class Potentiostat:
         raw_ads_voltage = raw_ads_val * f
 
         # @TODO convert to voltage thru gain calculations
-        # self.l.log("voltage read: {}".format(raw_ads_voltage))
-
-        # self.l.log("WARNING: should convert to current")
         return raw_ads_voltage
-        # self.switch_i2cmultiplexer(module_idx)
-        # raise NotImplementedError()
-    
-    # Functions to set states
     
     """
     Sets all of the channel switches at the same time, to the new provided settings.
@@ -302,6 +307,6 @@ class Potentiostat:
     """
     def _state_changed(self):
         for l in self._state_changed_listeners:
-            l(self.get_state())
+            l()
 
     
